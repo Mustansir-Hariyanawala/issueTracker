@@ -14,7 +14,7 @@ connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/api/user", userRouter);
+app.use("/api/users", userRouter);
 app.use("/api/issues", verifyToken, issueRouter);
 
 app.listen(port, () => {
