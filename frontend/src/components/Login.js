@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '../services/api';
 import './Login.css';
 
-const Login = ({ setStatusLogin }) => {
+const Login = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
@@ -28,16 +28,11 @@ const Login = ({ setStatusLogin }) => {
             const data = await loginUser(formData);
 
             if (data.token) {
-                // Store token
+                // Store token in localStorage
                 localStorage.setItem('token', data.token);
+                localStorage.setItem('hasVisited', 'true');
                 
-                // Store user info
-                localStorage.setItem('userRole', data.user.role);
-                localStorage.setItem('userName', data.user.name);
-                localStorage.setItem('userEmail', data.user.email);
-                localStorage.setItem('userId', data.user._id);
-                
-                setStatusLogin(true);
+                // Navigate to dashboard - token is in localStorage
                 navigate('/dashboard');
             } else {
                 setError(data.message || 'Login failed');

@@ -12,30 +12,24 @@ import IssueDetails from './components/IssueDetails';
 import Profile from './components/Profile';
 
 function App() {
-  const [hasLoggedIn, setLoginStatus] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Check if user has visited before (localStorage)
   useEffect(() => {
     const hasVisited = localStorage.getItem('hasVisited');
-    const token = localStorage.getItem('token');
     
     if (!hasVisited) {
       setIsFirstTimeUser(true);
     }
     
-    // Check if user is already logged in
-    if (token) {
-      setLoginStatus(true);
-    }
+    setLoading(false);
   }, []);
 
-  const setStatusLogin = () => {
-    setLoginStatus(true);
-  };
-
   const handleLogout = () => {
-    setLoginStatus(false);
+    localStorage.removeItem('token');
+    localStorage.removeItem('hasVisited');
+    setIsFirstTimeUser(false);
   };
 
   const handleRegistration = () => {
@@ -43,27 +37,32 @@ function App() {
     setIsFirstTimeUser(false);
   };
 
+  // Don't render routes until initial check is complete
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div>
       <BrowserRouter>
-        <Header loginStatus={hasLoggedIn} handleLogout={handleLogout}/>
+        <Header loginStatus={!!localStorage.getItem('token')} handleLogout={handleLogout}/>
         <Routes>
           <Route path='/' element={<Home />} />
           <Route 
             path='/login' 
             element={
-              hasLoggedIn ? <Navigate to="/dashboard" replace /> : 
-              <Login setStatusLogin={setStatusLogin} />
+              localStorage.getItem('token') ? <Navigate to="/dashboard" replace /> : 
+              <Login />
             } 
           />
           <Route 
             path='/register' 
-            element={<Register handleRegistration={handleRegistration} setStatusLogin={setStatusLogin} />} 
+            element={<Register handleRegistration={handleRegistration} />} 
           />
           <Route 
             path='/dashboard' 
             element={
-              <ProtectedRoute isAuthenticated={hasLoggedIn} isFirstTimeUser={isFirstTimeUser}>
+              <ProtectedRoute isFirstTimeUser={isFirstTimeUser}>
                 <Dashboard />
               </ProtectedRoute>
             } 
@@ -71,7 +70,7 @@ function App() {
           <Route 
             path='/create-issue' 
             element={
-              <ProtectedRoute isAuthenticated={hasLoggedIn} isFirstTimeUser={isFirstTimeUser}>
+              <ProtectedRoute isFirstTimeUser={isFirstTimeUser}>
                 <CreateIssue />
               </ProtectedRoute>
             } 
@@ -79,7 +78,7 @@ function App() {
           <Route 
             path='/issue/:id' 
             element={
-              <ProtectedRoute isAuthenticated={hasLoggedIn} isFirstTimeUser={isFirstTimeUser}>
+              <ProtectedRoute isFirstTimeUser={isFirstTimeUser}>
                 <IssueDetails />
               </ProtectedRoute>
             } 
@@ -87,7 +86,7 @@ function App() {
           <Route 
             path='/profile' 
             element={
-              <ProtectedRoute isAuthenticated={hasLoggedIn} isFirstTimeUser={isFirstTimeUser}>
+              <ProtectedRoute isFirstTimeUser={isFirstTimeUser}>
                 <Profile />
               </ProtectedRoute>
             } 

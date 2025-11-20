@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { registerUser } from '../services/api';
 import './Register.css';
 
-function Register({ handleRegistration, setStatusLogin }) {
+function Register({ handleRegistration }) {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
@@ -34,28 +34,17 @@ function Register({ handleRegistration, setStatusLogin }) {
             // Store token
             if (data.token) {
                 localStorage.setItem('token', data.token);
+                
+                // Mark as registered and logged in
+                if (handleRegistration) {
+                    handleRegistration();
+                }
+                
+                // Navigate to dashboard - token is in localStorage
+                navigate('/dashboard');
+            } else {
+                setError(data.message || 'Registration failed');
             }
-            
-            // Handle user data - check if it exists
-            const user = data.user || data;
-            
-            localStorage.setItem('userRole', user.role || formData.role);
-            localStorage.setItem('userName', user.name || formData.name);
-            localStorage.setItem('userEmail', user.email || formData.email);
-            
-            if (user._id || user.id) {
-                localStorage.setItem('userId', user._id || user.id);
-            }
-            
-            // Mark as registered and logged in
-            if (handleRegistration) {
-                handleRegistration();
-            }
-            if (setStatusLogin) {
-                setStatusLogin();
-            }
-            
-            navigate('/dashboard');
         } catch (err) {
             setError(err.message || 'Registration failed. Please try again.');
             console.error('Registration error:', err);

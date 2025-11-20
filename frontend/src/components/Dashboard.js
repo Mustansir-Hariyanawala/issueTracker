@@ -11,13 +11,45 @@ function Dashboard() {
     const [error, setError] = useState('');
     const [filter, setFilter] = useState('all'); // all, new, assigned, in-progress, resolved
     const [categoryFilter, setCategoryFilter] = useState('all');
-
-    const userRole = localStorage.getItem('userRole');
-    const userName = localStorage.getItem('userName');
+    const [userRole, setUserRole] = useState(null);
+    const [userName, setUserName] = useState('User');
 
     useEffect(() => {
+        // Fetch user profile to get role
+        const fetchUserProfile = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    navigate('/login');
+                    return;
+                }
+
+                const response = await fetch('http://localhost:3000/api/users/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    setUserRole(user.role);
+                    setUserName(user.name);
+                    // Store for quick access (optional)
+                    localStorage.setItem('userRole', user.role);
+                    localStorage.setItem('userName', user.name);
+                } else if (response.status === 401) {
+                    navigate('/login');
+                }
+            } catch (err) {
+                console.error('Failed to fetch user profile:', err);
+                navigate('/login');
+            }
+        };
+
+        fetchUserProfile();
         fetchIssues();
-    }, []);
+    }, [navigate]);
 
     const fetchIssues = async () => {
         setLoading(true);
