@@ -1,0 +1,108 @@
+/* Register Page Styles */
+.register-container {
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f093fb 0%, #764ba2 50%, #667eea 100%);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.register-container::before {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(255,255,255,0.12), transparent);
+  border-radius: 50%;
+  top: -250px;
+  left: -250px;
+  animation: pulse 8s ease-in-out infinite;
+}
+
+.register-container::after {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08), transparent);
+  border-radius: 50%;
+  bottom: -200px;
+  right: -200px;
+  animation: pulse 6s ease-in-out infinite reverse;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.register-card {
+  max-width: 500px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 30px;
+  padding: 50px 60px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.register-title {
+  font-size: 36px;
+  font-weight: 800;
+  color: #333;
+  margin-bottom: 10px;
+  text-align: center;
+  background: linear-gradient(135deg, #f093fb, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.register-subtitle {
+  color: #666;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 15px;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.register-footer {
+  margin-top: 25px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+}
+
+.register-footer a {
+  color: #667eea;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.register-footer a:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

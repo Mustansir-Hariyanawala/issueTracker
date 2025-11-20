@@ -3,7 +3,7 @@ import userModel from '../models/userModel.js';
 
 export const getAllIssues = async( req , res , next) => {
     try {
-        const data = await issueModel.find(); 
+        const data = await issueModel.find().populate('createdBy', 'name email role');
         res.json(data);
     } catch (err) {
         res.status(500).json({ error: 'Server error' });
@@ -12,36 +12,29 @@ export const getAllIssues = async( req , res , next) => {
 
 export const postIssue = async( req , res , next) => {
     try {
-        const { title, description, category, priority, userid } = req.body;
+        const { title, description, category, priority } = req.body;
 
-        const issue = await issueModel.create({
+        const newIssue = await issueModel.create({
             title,
             description,
             category,
             priority,
-            media: req.file ? req.file.path : null,  // multer upload
-            createdBy: userid                   // from auth middleware
+            media: req.file ? req.file.path : null, // if media uploaded
+            createdBy: req.user.id                  // from auth middleware
         });
 
-        res.status(201).json(issue);
+        res.status(201).json(newIssue);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: 'Server error' });
     }
 }
 export const getMyIssues = async( req , res , next) => {
     try {
-        const userId = req.headers.authorization?.split(" ")[1];
-        // console.log("User ID from headers:", userId); 
-
-        const issues = await issueModel.find({ createdBy: userId });
-        res.json(issues);
+        const data = await issueModel.find({ createdBy: req.user.id });
+        res.json(data);
     } catch (err) {
-        console.error(err);
-
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: 'Server error' });
     }
-
 }
 
 export const getIssue = async( req , res , next) => {
@@ -60,17 +53,19 @@ export const getIssue = async( req , res , next) => {
 
 export const updateIssue = async( req , res , next) => {
     try {
+        const updates = req.body; 
+
         const updated = await issueModel.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            updates,
             { new: true }
         );
 
-        if (!updated) return res.status(404).json({ error: "Issue not found" });
+        if (!updated) return res.status(404).json({ error: 'Issue not found' });
 
         res.json(updated);
     } catch (err) {
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: 'Server error' });
     }
 }
 

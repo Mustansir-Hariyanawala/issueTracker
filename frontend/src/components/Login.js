@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import './Login.css';
 
 const Login = ({ setStatusLogin }) => {
     const navigate = useNavigate();
@@ -23,7 +24,8 @@ const Login = ({ setStatusLogin }) => {
         setLoading(true);
 
         try {
-            // Replace with your actual API endpoint
+            // TEMPORARY: Comment out API call for testing without backend
+            /*
             const response = await fetch('http://localhost:3000/api/auth/login', {
                 method: 'POST',
                 headers: {
@@ -39,11 +41,30 @@ const Login = ({ setStatusLogin }) => {
                 if (data.token) {
                     localStorage.setItem('token', data.token);
                 }
+                // Store user role and name
+                if (data.role) {
+                    localStorage.setItem('userRole', data.role);
+                }
+                if (data.user && data.user.name) {
+                    localStorage.setItem('userName', data.user.name);
+                } else if (data.name) {
+                    localStorage.setItem('userName', data.name);
+                }
                 setStatusLogin(true);
                 navigate('/dashboard');
             } else {
                 setError(data.message || 'Login failed');
             }
+            */
+
+            // TEMPORARY: Simulate successful login
+            localStorage.setItem('token', 'temp-token-123');
+            localStorage.setItem('userRole', 'resident'); // Change to 'admin' or 'technician' to test different roles
+            localStorage.setItem('userName', formData.email.split('@')[0]);
+            localStorage.setItem('userEmail', formData.email);
+            setStatusLogin(true);
+            navigate('/dashboard');
+            
         } catch (err) {
             setError('An error occurred. Please try again.');
             console.error('Login error:', err);
@@ -53,54 +74,48 @@ const Login = ({ setStatusLogin }) => {
     };
     
     return (
-        <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px' }}>
-            <h2>Login</h2>
-            <form onSubmit={handleLogin}>
-                <div style={{ marginBottom: '15px' }}>
-                    <label style={{ display: 'block', marginBottom: '5px' }}>Email:</label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        style={{ width: '100%', padding: '8px', fontSize: '14px' }}
-                    />
-                </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label style={{ display: 'block', marginBottom: '5px' }}>Password:</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                        style={{ width: '100%', padding: '8px', fontSize: '14px' }}
-                    />
-                </div>
-                {error && (
-                    <div style={{ color: 'red', marginBottom: '15px', fontSize: '14px' }}>
-                        {error}
+        <div className="login-container">
+            <div className="login-card">
+                <h2 className="login-title">Login</h2>
+                <form onSubmit={handleLogin} className="login-form">
+                    <div className="form-group">
+                        <label className="form-label">Email:</label>
+                        <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                            className="form-input"
+                        />
                     </div>
-                )}
-                <button 
-                    type="submit" 
-                    disabled={loading}
-                    style={{ 
-                        width: '100%', 
-                        padding: '10px', 
-                        fontSize: '16px',
-                        backgroundColor: loading ? '#ccc' : '#007bff',
-                        color: 'white',
-                        border: 'none',
-                        cursor: loading ? 'not-allowed' : 'pointer'
-                    }}
-                >
-                    {loading ? 'Logging in...' : 'Login'}
-                </button>
-            </form>
-            <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                Not Registered? <Link to="/register">Register</Link>
+                    <div className="form-group">
+                        <label className="form-label">Password:</label>
+                        <input
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                            className="form-input"
+                        />
+                    </div>
+                    {error && (
+                        <div className="error-message">
+                            {error}
+                        </div>
+                    )}
+                    <button 
+                        type="submit" 
+                        disabled={loading}
+                        className="submit-button"
+                    >
+                        {loading ? 'Logging in...' : 'Login'}
+                    </button>
+                </form>
+                <div className="login-footer">
+                    Not Registered? <Link to="/register">Register</Link>
+                </div>
             </div>
         </div>  
     );

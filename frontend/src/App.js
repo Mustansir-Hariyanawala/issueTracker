@@ -7,6 +7,9 @@ import Dashboard from './components/Dashboard';
 import Home from './components/Home';
 import Header from './components/Header';
 import ProtectedRoute from './components/ProtectedRoute';
+import CreateIssue from './components/CreateIssue';
+import IssueDetails from './components/IssueDetails';
+import Profile from './components/Profile';
 
 function App() {
   const [hasLoggedIn, setLoginStatus] = useState(false);
@@ -15,8 +18,15 @@ function App() {
   // Check if user has visited before (localStorage)
   useEffect(() => {
     const hasVisited = localStorage.getItem('hasVisited');
+    const token = localStorage.getItem('token');
+    
     if (!hasVisited) {
       setIsFirstTimeUser(true);
+    }
+    
+    // Check if user is already logged in
+    if (token) {
+      setLoginStatus(true);
     }
   }, []);
 
@@ -55,6 +65,30 @@ function App() {
             element={
               <ProtectedRoute isAuthenticated={hasLoggedIn} isFirstTimeUser={isFirstTimeUser}>
                 <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/create-issue' 
+            element={
+              <ProtectedRoute isAuthenticated={hasLoggedIn} isFirstTimeUser={isFirstTimeUser}>
+                <CreateIssue />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/issue/:id' 
+            element={
+              <ProtectedRoute isAuthenticated={hasLoggedIn} isFirstTimeUser={isFirstTimeUser}>
+                <IssueDetails />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/profile' 
+            element={
+              <ProtectedRoute isAuthenticated={hasLoggedIn} isFirstTimeUser={isFirstTimeUser}>
+                <Profile />
               </ProtectedRoute>
             } 
           />

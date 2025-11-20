@@ -7,14 +7,15 @@ import {
   updateIssue,
   deleteIssue,
 } from "../controllers/issueController.js";
+import authorizeRoles from "../middleware/authorizeRoles.js";
+import { verifyToken } from "../middleware/verifyToken.js";
 const issueRouter = Router();
 
-issueRouter.get("/", getAllIssues);
-issueRouter.post("/create", postIssue);
-issueRouter.get("/my", getMyIssues);
-issueRouter.get("/:id", getIssue);
-issueRouter.put("/:id/status", updateIssue);
-issueRouter.delete("/:id", deleteIssue);
-
+issueRouter.get("/",authorizeRoles("admin"), verifyToken, getAllIssues);
+issueRouter.post("/create", verifyToken, postIssue);
+issueRouter.get("/my", verifyToken, getMyIssues);
+issueRouter.get("/:id", verifyToken, getIssue);
+issueRouter.put("/:id/status", authorizeRoles("admin"), verifyToken, updateIssue);
+issueRouter.delete("/:id", authorizeRoles("admin"), verifyToken, deleteIssue);
 
 export default issueRouter;
