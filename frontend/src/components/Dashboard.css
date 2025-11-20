@@ -156,12 +156,16 @@
   flex-wrap: wrap;
   align-items: center;
   padding: 30px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
-  backdrop-filter: blur(10px);
-  border-radius: 25px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   margin-bottom: 40px;
-  border: 1px solid rgba(102, 126, 234, 0.1);
+  border: 2px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.filters-container:hover {
+  border-color: rgba(102, 126, 234, 0.2);
 }
 
 .filter-group {
@@ -171,18 +175,26 @@
 }
 
 .filter-label {
-  font-weight: 600;
-  color: #555;
-  font-size: 14px;
+  font-weight: 700;
+  color: #667eea;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
 }
 
 .filter-select {
-  padding: 10px 15px;
-  border-radius: 8px;
+  padding: 12px 18px;
+  border-radius: 12px;
   border: 2px solid #e0e0e0;
   font-size: 14px;
+  font-weight: 500;
   transition: all 0.3s ease;
   cursor: pointer;
+  background: white;
+}
+
+.filter-select:hover {
+  border-color: #667eea;
 }
 
 .filter-select:focus {
@@ -196,10 +208,13 @@
 }
 
 .issues-title {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
-  color: #333;
-  margin-bottom: 20px;
+  color: #1a1a1a;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #667eea;
+  display: inline-block;
 }
 
 .loading-message,
@@ -259,10 +274,13 @@
 }
 
 .issues-title {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
-  color: #333;
-  margin-bottom: 20px;
+  color: #1a1a1a;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #667eea;
+  display: inline-block;
 }
 
 .loading-message,

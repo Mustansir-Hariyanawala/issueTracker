@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './Profile.css';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -123,114 +124,119 @@ const Profile = () => {
         onClick={() => navigate('/dashboard')}
         className="back-button"
       >
-        ← Back to Dashboard
+        Back to Dashboard
       </button>
 
       <div className="profile-card">
-        <div className="profile-avatar-section">
-          <div className="profile-avatar">
-            {userInfo.name.charAt(0).toUpperCase()}
+        <div className="profile-header">
+          <div className="profile-avatar-section">
+            <div className="profile-avatar">
+              {userInfo.name.charAt(0).toUpperCase()}
+            </div>
+            <h2 className="profile-name">{userInfo.name}</h2>
+            <span className="role-badge">
+              {userInfo.role}
+            </span>
           </div>
-          <h2 className="profile-name">{userInfo.name}</h2>
-          <span
-            className="role-badge"
-            style={{
-              backgroundColor: getRoleBadgeColor(userInfo.role)
-            }}
-          >
-            {userInfo.role}
-          </span>
         </div>
 
-        {!isEditing ? (
-          <div className="profile-view">
-            <div className="profile-field">
-              <label className="profile-field-label">
-                Name
-              </label>
-              <p className="profile-field-value">
-                {userInfo.name}
-              </p>
-            </div>
+        <div className="profile-content">
+          {!isEditing ? (
+            <div className="profile-view">
+              <h3 className="profile-section-title">Personal Information</h3>
+              
+              <div className="profile-field">
+                <label className="profile-field-label">
+                  Full Name
+                </label>
+                <p className="profile-field-value">
+                  {userInfo.name}
+                </p>
+              </div>
 
-            <div className="profile-field">
-              <label className="profile-field-label">
-                Email
-              </label>
-              <p className="profile-field-value">
-                {userInfo.email}
-              </p>
-            </div>
+              <div className="profile-field">
+                <label className="profile-field-label">
+                  Email Address
+                </label>
+                <p className="profile-field-value">
+                  {userInfo.email}
+                </p>
+              </div>
 
-            <div className="profile-field">
-              <label className="profile-field-label">
-                Role
-              </label>
-              <p className="profile-field-value profile-role-capitalize">
-                {userInfo.role}
-              </p>
-            </div>
+              <div className="profile-field">
+                <label className="profile-field-label">
+                  Account Role
+                </label>
+                <p className="profile-field-value profile-role-capitalize">
+                  {userInfo.role}
+                </p>
+              </div>
 
-            <button
-              onClick={() => setIsEditing(true)}
-              className="edit-profile-button"
-            >
-              Edit Profile
-            </button>
-          </div>
-        ) : (
-          <div className="profile-edit">
-            <div className="form-group">
-              <label className="form-label">
-                Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="form-input"
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="form-input"
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">
-                Role (Cannot be changed)
-              </label>
-              <p className="role-readonly">
-                {userInfo.role}
-              </p>
-            </div>
-
-            <div className="profile-edit-actions">
               <button
-                onClick={handleSave}
-                className="save-button"
+                onClick={() => setIsEditing(true)}
+                className="edit-profile-button"
               >
-                Save Changes
-              </button>
-              <button
-                onClick={handleCancel}
-                className="cancel-button"
-              >
-                Cancel
+                ✏️ Edit Profile
               </button>
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="profile-edit-form">
+              <h3 className="profile-section-title">Edit Information</h3>
+              
+              <div className="form-group">
+                <label className="form-label">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="form-input"
+                  placeholder="Enter your full name"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="form-input"
+                  placeholder="Enter your email"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">
+                  Account Role (Read Only)
+                </label>
+                <div className="form-input" style={{ background: '#f0f0f0', cursor: 'not-allowed' }}>
+                  {userInfo.role}
+                </div>
+              </div>
+
+              <div className="form-actions">
+                <button
+                  onClick={handleSave}
+                  className="save-button"
+                >
+                  💾 Save Changes
+                </button>
+                <button
+                  onClick={handleCancel}
+                  className="cancel-button"
+                >
+                  ✖ Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

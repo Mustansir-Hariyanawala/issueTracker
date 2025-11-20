@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getIssueById, updateIssueStatus } from '../services/api';
+import './IssueDetails.css';
 
 const IssueDetails = () => {
   const { id } = useParams();
@@ -91,7 +92,7 @@ const IssueDetails = () => {
         onClick={() => navigate('/dashboard')}
         className="back-button"
       >
-        ← Back to Dashboard
+        Back to Dashboard
       </button>
 
       <div className="issue-details-card">
