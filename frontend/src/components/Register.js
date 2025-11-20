@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from 'react-router-dom';
+import { registerUser } from '../services/api';
 import './Register.css';
 
 function Register({ handleRegistration, setStatusLogin }) {
@@ -26,65 +27,37 @@ function Register({ handleRegistration, setStatusLogin }) {
         setLoading(true);
 
         try {
-            // TEMPORARY: Comment out API call for testing without backend
-            /*
-            const response = await fetch('http://localhost:3000/api/auth/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                // Mark as registered
-                if (handleRegistration) {
-                    handleRegistration();
-                }
-                // Store token if your API returns one
-                if (data.token) {
-                    localStorage.setItem('token', data.token);
-                }
-                // Store user role and name
-                if (data.role) {
-                    localStorage.setItem('userRole', data.role);
-                } else {
-                    localStorage.setItem('userRole', formData.role);
-                }
-                if (data.user && data.user.name) {
-                    localStorage.setItem('userName', data.user.name);
-                } else if (data.name) {
-                    localStorage.setItem('userName', data.name);
-                } else {
-                    localStorage.setItem('userName', formData.name);
-                }
-                // Log in the user
-                if (setStatusLogin) {
-                    setStatusLogin();
-                }
-                navigate('/dashboard');
-            } else {
-                setError(data.message || 'Registration failed');
+            const data = await registerUser(formData);
+            
+            console.log('Registration response:', data); // Debug log
+            
+            // Store token
+            if (data.token) {
+                localStorage.setItem('token', data.token);
             }
-            */
-
-            // TEMPORARY: Simulate successful registration
+            
+            // Handle user data - check if it exists
+            const user = data.user || data;
+            
+            localStorage.setItem('userRole', user.role || formData.role);
+            localStorage.setItem('userName', user.name || formData.name);
+            localStorage.setItem('userEmail', user.email || formData.email);
+            
+            if (user._id || user.id) {
+                localStorage.setItem('userId', user._id || user.id);
+            }
+            
+            // Mark as registered and logged in
             if (handleRegistration) {
                 handleRegistration();
             }
-            localStorage.setItem('token', 'temp-token-123');
-            localStorage.setItem('userRole', formData.role);
-            localStorage.setItem('userName', formData.name);
-            localStorage.setItem('userEmail', formData.email);
             if (setStatusLogin) {
                 setStatusLogin();
             }
-            navigate('/dashboard');
             
+            navigate('/dashboard');
         } catch (err) {
-            setError('An error occurred. Please try again.');
+            setError(err.message || 'Registration failed. Please try again.');
             console.error('Registration error:', err);
         } finally {
             setLoading(false);
@@ -127,6 +100,7 @@ function Register({ handleRegistration, setStatusLogin }) {
                             value={formData.password}
                             onChange={handleChange}
                             required
+                            minLength="6"
                             className="form-input"
                         />
                     </div>

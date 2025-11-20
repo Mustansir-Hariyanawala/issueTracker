@@ -23,7 +23,14 @@ export const registerUser = async (userData) => {
     },
     body: JSON.stringify(userData)
   });
-  return response.json();
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || 'Registration failed');
+  }
+  
+  return data;
 };
 
 export const loginUser = async (credentials) => {
@@ -34,12 +41,25 @@ export const loginUser = async (credentials) => {
     },
     body: JSON.stringify(credentials)
   });
-  return response.json();
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || 'Login failed');
+  }
+  
+  return data;
 };
 
 // ==================== ISSUE APIs ====================
 
 export const createIssue = async (formData) => {
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No authentication token found. Please login again.');
+  }
+  
   const response = await fetch(`${API_BASE_URL}/issues/create`, {
     method: 'POST',
     headers: {
@@ -48,40 +68,92 @@ export const createIssue = async (formData) => {
     },
     body: formData
   });
-  return response.json();
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'Failed to create issue');
+  }
+  
+  return data;
 };
 
 export const getAllIssues = async () => {
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No authentication token found. Please login again.');
+  }
+  
   const response = await fetch(`${API_BASE_URL}/issues`, {
     method: 'GET',
     headers: {
       ...getAuthHeaders()
     }
   });
-  return response.json();
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'Failed to fetch issues');
+  }
+  
+  return data;
 };
 
 export const getMyIssues = async () => {
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No authentication token found. Please login again.');
+  }
+  
   const response = await fetch(`${API_BASE_URL}/issues/my`, {
     method: 'GET',
     headers: {
       ...getAuthHeaders()
     }
   });
-  return response.json();
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'Failed to fetch your issues');
+  }
+  
+  return data;
 };
 
 export const getIssueById = async (id) => {
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No authentication token found. Please login again.');
+  }
+  
   const response = await fetch(`${API_BASE_URL}/issues/${id}`, {
     method: 'GET',
     headers: {
       ...getAuthHeaders()
     }
   });
-  return response.json();
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'Failed to fetch issue details');
+  }
+  
+  return data;
 };
 
 export const updateIssueStatus = async (id, status) => {
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No authentication token found. Please login again.');
+  }
+  
   const response = await fetch(`${API_BASE_URL}/issues/${id}/status`, {
     method: 'PUT',
     headers: {
@@ -90,15 +162,35 @@ export const updateIssueStatus = async (id, status) => {
     },
     body: JSON.stringify({ status })
   });
-  return response.json();
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'Failed to update issue status');
+  }
+  
+  return data;
 };
 
 export const deleteIssue = async (id) => {
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No authentication token found. Please login again.');
+  }
+  
   const response = await fetch(`${API_BASE_URL}/issues/${id}`, {
     method: 'DELETE',
     headers: {
       ...getAuthHeaders()
     }
   });
-  return response.json();
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'Failed to delete issue');
+  }
+  
+  return data;
 };

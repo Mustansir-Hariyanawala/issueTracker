@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import './IssueCard.css';
 
 const IssueCard = ({ issue }) => {
   const navigate = useNavigate();
@@ -26,68 +27,34 @@ const IssueCard = ({ issue }) => {
   return (
     <div 
       onClick={() => navigate(`/issue/${issue._id}`)}
-      style={{
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        padding: '15px',
-        marginBottom: '15px',
-        cursor: 'pointer',
-        backgroundColor: 'white',
-        transition: 'box-shadow 0.2s',
-        ':hover': { boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }
-      }}
-      onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)'}
-      onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
+      className="issue-card"
     >
-      <div style={{ marginBottom: '10px' }}>
-        <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', color: '#212529' }}>
+      <div className="issue-card-header">
+        <h3 className="issue-card-title">
           {issue.title}
         </h3>
-        <p style={{ 
-          margin: 0, 
-          fontSize: '14px', 
-          color: '#6c757d',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap'
-        }}>
+        <p className="issue-card-description">
           {issue.description}
         </p>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
-        <span style={{
-          padding: '4px 10px',
-          backgroundColor: getStatusColor(issue.status),
-          color: 'white',
-          borderRadius: '4px',
-          fontSize: '12px',
-          fontWeight: 'bold'
+      <div className="issue-card-badges">
+        <span className="badge badge-status" style={{
+          backgroundColor: getStatusColor(issue.status)
         }}>
           {issue.status}
         </span>
-        <span style={{
-          padding: '4px 10px',
-          backgroundColor: getPriorityColor(issue.priority),
-          color: 'white',
-          borderRadius: '4px',
-          fontSize: '12px',
-          fontWeight: 'bold'
+        <span className="badge badge-priority" style={{
+          backgroundColor: getPriorityColor(issue.priority)
         }}>
           {issue.priority}
         </span>
-        <span style={{
-          padding: '4px 10px',
-          backgroundColor: '#e9ecef',
-          color: '#495057',
-          borderRadius: '4px',
-          fontSize: '12px'
-        }}>
+        <span className="badge badge-category">
           {issue.category.charAt(0).toUpperCase() + issue.category.slice(1)}
         </span>
       </div>
 
-      <div style={{ fontSize: '12px', color: '#6c757d' }}>
+      <div className="issue-card-footer">
         Created: {new Date(issue.createdAt).toLocaleDateString()}
       </div>
     </div>

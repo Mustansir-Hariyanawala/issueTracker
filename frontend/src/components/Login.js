@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { loginUser } from '../services/api';
 import './Login.css';
 
 const Login = ({ setStatusLogin }) => {
@@ -24,49 +25,25 @@ const Login = ({ setStatusLogin }) => {
         setLoading(true);
 
         try {
-            // TEMPORARY: Comment out API call for testing without backend
-            /*
-            const response = await fetch('http://localhost:3000/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
+            const data = await loginUser(formData);
 
-            const data = await response.json();
-
-            if (response.ok) {
-                // Store token if your API returns one
-                if (data.token) {
-                    localStorage.setItem('token', data.token);
-                }
-                // Store user role and name
-                if (data.role) {
-                    localStorage.setItem('userRole', data.role);
-                }
-                if (data.user && data.user.name) {
-                    localStorage.setItem('userName', data.user.name);
-                } else if (data.name) {
-                    localStorage.setItem('userName', data.name);
-                }
+            if (data.token) {
+                // Store token
+                localStorage.setItem('token', data.token);
+                
+                // Store user info
+                localStorage.setItem('userRole', data.user.role);
+                localStorage.setItem('userName', data.user.name);
+                localStorage.setItem('userEmail', data.user.email);
+                localStorage.setItem('userId', data.user._id);
+                
                 setStatusLogin(true);
                 navigate('/dashboard');
             } else {
                 setError(data.message || 'Login failed');
             }
-            */
-
-            // TEMPORARY: Simulate successful login
-            localStorage.setItem('token', 'temp-token-123');
-            localStorage.setItem('userRole', 'resident'); // Change to 'admin' or 'technician' to test different roles
-            localStorage.setItem('userName', formData.email.split('@')[0]);
-            localStorage.setItem('userEmail', formData.email);
-            setStatusLogin(true);
-            navigate('/dashboard');
-            
         } catch (err) {
-            setError('An error occurred. Please try again.');
+            setError(err.response?.data?.message || 'An error occurred. Please try again.');
             console.error('Login error:', err);
         } finally {
             setLoading(false);

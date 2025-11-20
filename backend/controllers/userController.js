@@ -6,7 +6,7 @@ export const register = async (req, res, next) => {
   console.log(req.body);
   try {
     const { name, email, password, role } = req.body;
-    const user = await User.findOne({ name: name, email: email });
+    const user = await User.findOne({ email: email });
     if (user) {
       console.log(user);
       return res.status(422).json({ message: "User Already exists" });
@@ -14,7 +14,24 @@ export const register = async (req, res, next) => {
       const hashedPass = await bcrypt.hash(password, 10);
       const newuser = new User({ name, email, password: hashedPass, role });
       await newuser.save();
-      return res.status(200).json({ message: "Successfully added user" });
+      
+      // Generate token
+      const token = jwt.sign(
+        { id: newuser._id.toString(), role: newuser.role },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+      
+      // Return token and user data
+      return res.status(201).json({
+        token,
+        user: {
+          _id: newuser._id,
+          name: newuser.name,
+          email: newuser.email,
+          role: newuser.role
+        }
+      });
     }
   } catch (err) {
     console.log(err);
@@ -36,10 +53,19 @@ export const login = async (req, res, next) => {
   
   const token = jwt.sign(
     { id: user._id.toString(), role: user.role },
-    process.env.JWT_SECRET
+    process.env.JWT_SECRET,
+    { expiresIn: '7d' }
   );
 
-  res.json({ token });
+  res.json({
+    token,
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    }
+  });
 };
 
 export const getUser = async (req, res, next) => {

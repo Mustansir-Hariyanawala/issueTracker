@@ -188,6 +188,53 @@
 .filter-select:focus {
   outline: none;
   border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.issues-section {
+  margin-top: 30px;
+}
+
+.issues-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.loading-message,
+.error-message-dashboard,
+.empty-message {
+  text-align: center;
+  padding: 40px;
+  font-size: 16px;
+  color: #666;
+}
+
+.error-message-dashboard {
+  color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.1);
+  border-radius: 15px;
+  border: 2px solid #dc3545;
+}
+
+.first-issue-button {
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.first-issue-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
 .refresh-button {

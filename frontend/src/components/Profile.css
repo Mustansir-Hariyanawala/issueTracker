@@ -4,6 +4,26 @@
   margin: 50px auto;
   padding: 20px;
   animation: fadeIn 0.6s ease-out;
+  position: relative;
+  min-height: 80vh;
+}
+
+.profile-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  opacity: 0.05;
+  z-index: -1;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.1) rotate(5deg); }
 }
 
 @keyframes fadeIn {
@@ -112,22 +132,28 @@
 }
 
 .profile-view {
-  margin-top: 30px;
+  margin-top: 40px;
 }
 
 .profile-field {
-  margin-bottom: 30px;
+  margin-bottom: 35px;
   position: relative;
+  animation: slideIn 0.4s ease-out;
+}
+
+.profile-field:hover {
+  transform: translateX(5px);
+  transition: transform 0.3s ease;
 }
 
 .profile-field-label {
   display: block;
   font-weight: 800;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   color: #667eea;
-  font-size: 13px;
+  font-size: 14px;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.8px;
 }
 
 .profile-field-value {
@@ -139,6 +165,10 @@
   color: #333;
   font-weight: 600;
   box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.profile-role-capitalize {
+  text-transform: capitalize;
 }
 
 .edit-profile-button {
@@ -179,6 +209,91 @@
 .edit-profile-button:hover {
   transform: translateY(-3px);
   box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+}
+
+.profile-edit {
+  margin-top: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: #667eea;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 18px;
+  font-size: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  transform: translateY(-2px);
+}
+
+.profile-edit-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.save-button {
+  flex: 1;
+  padding: 16px;
+  font-size: 17px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+}
+
+.save-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(40, 167, 69, 0.4);
+}
+
+.cancel-button {
+  flex: 1;
+  padding: 16px;
+  font-size: 17px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #6c757d, #495057);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+}
+
+.cancel-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(108, 117, 125, 0.4);
+}
+
+.role-readonly {
+  font-size: 15px;
+  color: #999;
+  font-style: italic;
 }
 
 .profile-edit {

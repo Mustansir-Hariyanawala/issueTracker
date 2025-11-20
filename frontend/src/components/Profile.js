@@ -86,51 +86,24 @@ const Profile = () => {
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: '50px auto', padding: '20px' }}>
+    <div className="profile-container">
       <button
         onClick={() => navigate('/dashboard')}
-        style={{
-          padding: '8px 16px',
-          marginBottom: '20px',
-          backgroundColor: '#6c757d',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer'
-        }}
+        className="back-button"
       >
         ← Back to Dashboard
       </button>
 
-      <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '30px', backgroundColor: 'white' }}>
-        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <div
-            style={{
-              width: '100px',
-              height: '100px',
-              borderRadius: '50%',
-              backgroundColor: '#007bff',
-              color: 'white',
-              fontSize: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 15px',
-              fontWeight: 'bold'
-            }}
-          >
+      <div className="profile-card">
+        <div className="profile-avatar-section">
+          <div className="profile-avatar">
             {userInfo.name.charAt(0).toUpperCase()}
           </div>
-          <h2 style={{ margin: '0 0 10px 0' }}>{userInfo.name}</h2>
+          <h2 className="profile-name">{userInfo.name}</h2>
           <span
+            className="role-badge"
             style={{
-              padding: '5px 15px',
-              backgroundColor: getRoleBadgeColor(userInfo.role),
-              color: 'white',
-              borderRadius: '20px',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              textTransform: 'capitalize'
+              backgroundColor: getRoleBadgeColor(userInfo.role)
             }}
           >
             {userInfo.role}
@@ -138,56 +111,45 @@ const Profile = () => {
         </div>
 
         {!isEditing ? (
-          <div>
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: '#6c757d' }}>
+          <div className="profile-view">
+            <div className="profile-field">
+              <label className="profile-field-label">
                 Name
               </label>
-              <p style={{ margin: 0, fontSize: '16px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
+              <p className="profile-field-value">
                 {userInfo.name}
               </p>
             </div>
 
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: '#6c757d' }}>
+            <div className="profile-field">
+              <label className="profile-field-label">
                 Email
               </label>
-              <p style={{ margin: 0, fontSize: '16px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
+              <p className="profile-field-value">
                 {userInfo.email}
               </p>
             </div>
 
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: '#6c757d' }}>
+            <div className="profile-field">
+              <label className="profile-field-label">
                 Role
               </label>
-              <p style={{ margin: 0, fontSize: '16px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '4px', textTransform: 'capitalize' }}>
+              <p className="profile-field-value profile-role-capitalize">
                 {userInfo.role}
               </p>
             </div>
 
             <button
               onClick={() => setIsEditing(true)}
-              style={{
-                width: '100%',
-                padding: '12px',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                backgroundColor: '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                marginTop: '20px'
-              }}
+              className="edit-profile-button"
             >
               Edit Profile
             </button>
           </div>
         ) : (
-          <div>
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>
+          <div className="profile-edit">
+            <div className="form-group">
+              <label className="form-label">
                 Name
               </label>
               <input
@@ -195,18 +157,12 @@ const Profile = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  fontSize: '14px',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px'
-                }}
+                className="form-input"
               />
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>
+            <div className="form-group">
+              <label className="form-label">
                 Email
               </label>
               <input
@@ -214,66 +170,29 @@ const Profile = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  fontSize: '14px',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px'
-                }}
+                className="form-input"
               />
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: '#6c757d' }}>
+            <div className="form-group">
+              <label className="form-label">
                 Role (Cannot be changed)
               </label>
-              <input
-                type="text"
-                value={userInfo.role}
-                disabled
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  fontSize: '14px',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  backgroundColor: '#e9ecef',
-                  textTransform: 'capitalize'
-                }}
-              />
+              <p className="role-readonly">
+                {userInfo.role}
+              </p>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+            <div className="profile-edit-actions">
               <button
                 onClick={handleSave}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  backgroundColor: '#28a745',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
+                className="save-button"
               >
                 Save Changes
               </button>
               <button
                 onClick={handleCancel}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  backgroundColor: '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
+                className="cancel-button"
               >
                 Cancel
               </button>
@@ -283,6 +202,6 @@ const Profile = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Profile;

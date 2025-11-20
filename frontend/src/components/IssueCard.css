@@ -67,6 +67,23 @@
   margin-bottom: 15px;
 }
 
+.badge {
+  padding: 8px 18px;
+  border-radius: 25px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: badgeFadeIn 0.5s ease-out;
+  transition: all 0.3s ease;
+}
+
+.badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
 .issue-badge {
   padding: 8px 18px;
   border-radius: 25px;
@@ -92,7 +109,7 @@
 }
 
 .badge-category {
-  background-color: #f0f0f0;
+  background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
   color: #555;
   font-weight: 600;
 }

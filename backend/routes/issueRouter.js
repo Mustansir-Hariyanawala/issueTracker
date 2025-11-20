@@ -9,10 +9,12 @@ import {
 } from "../controllers/issueController.js";
 import authorizeRoles from "../middleware/authorizeRoles.js";
 import { verifyToken } from "../middleware/verifyToken.js";
+import upload from "../middleware/upload.js";
+
 const issueRouter = Router();
 
 issueRouter.get("/",authorizeRoles("admin"), verifyToken, getAllIssues);
-issueRouter.post("/create", verifyToken, postIssue);
+issueRouter.post("/create", verifyToken, upload.single('media'), postIssue);
 issueRouter.get("/my", verifyToken, getMyIssues);
 issueRouter.get("/:id", verifyToken, getIssue);
 issueRouter.put("/:id/status", authorizeRoles("admin"), verifyToken, updateIssue);
