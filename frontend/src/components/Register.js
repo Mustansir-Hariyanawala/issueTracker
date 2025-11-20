@@ -31,17 +31,26 @@ function Register({ handleRegistration }) {
             
             console.log('Registration response:', data); // Debug log
             
-            // Store token
+            // Store token and user data
             if (data.token) {
                 localStorage.setItem('token', data.token);
+                localStorage.setItem('hasVisited', 'true');
                 
-                // Mark as registered and logged in
+                // Store user information
+                if (data.user) {
+                    localStorage.setItem('userRole', data.user.role);
+                    localStorage.setItem('userName', data.user.name);
+                    localStorage.setItem('userEmail', data.user.email);
+                    localStorage.setItem('userId', data.user._id);
+                }
+                
+                // Mark as registered
                 if (handleRegistration) {
                     handleRegistration();
                 }
                 
-                // Navigate to dashboard - token is in localStorage
-                navigate('/dashboard');
+                // Force page reload to update header
+                window.location.href = '/dashboard';
             } else {
                 setError(data.message || 'Registration failed');
             }

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '../services/api';
 import './Login.css';
 
-const Login = () => {
+const Login = ({ setStatusLogin }) => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
@@ -28,17 +28,30 @@ const Login = () => {
             const data = await loginUser(formData);
 
             if (data.token) {
-                // Store token in localStorage
+                // Store token and user data in localStorage
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('hasVisited', 'true');
                 
-                // Navigate to dashboard - token is in localStorage
-                navigate('/dashboard');
+                // Store user information
+                if (data.user) {
+                    localStorage.setItem('userRole', data.user.role);
+                    localStorage.setItem('userName', data.user.name);
+                    localStorage.setItem('userEmail', data.user.email);
+                    localStorage.setItem('userId', data.user._id);
+                }
+                
+                // Update login status
+                if (setStatusLogin) {
+                    setStatusLogin();
+                }
+                
+                // Force page reload to update header
+                window.location.href = '/dashboard';
             } else {
                 setError(data.message || 'Login failed');
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred. Please try again.');
+            setError(err.message || 'An error occurred. Please try again.');
             console.error('Login error:', err);
         } finally {
             setLoading(false);

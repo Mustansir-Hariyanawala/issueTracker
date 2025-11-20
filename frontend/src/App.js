@@ -14,27 +14,40 @@ import Profile from './components/Profile';
 function App() {
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Check if user has visited before (localStorage)
+  // Check if user has visited before and is logged in
   useEffect(() => {
     const hasVisited = localStorage.getItem('hasVisited');
+    const token = localStorage.getItem('token');
     
     if (!hasVisited) {
       setIsFirstTimeUser(true);
     }
     
+    setIsLoggedIn(!!token);
     setLoading(false);
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userId');
     localStorage.removeItem('hasVisited');
     setIsFirstTimeUser(false);
+    setIsLoggedIn(false);
   };
 
   const handleRegistration = () => {
     localStorage.setItem('hasVisited', 'true');
     setIsFirstTimeUser(false);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
   };
 
   // Don't render routes until initial check is complete
@@ -45,14 +58,14 @@ function App() {
   return (
     <div>
       <BrowserRouter>
-        <Header loginStatus={!!localStorage.getItem('token')} handleLogout={handleLogout}/>
+        <Header loginStatus={isLoggedIn} handleLogout={handleLogout}/>
         <Routes>
           <Route path='/' element={<Home />} />
           <Route 
             path='/login' 
             element={
               localStorage.getItem('token') ? <Navigate to="/dashboard" replace /> : 
-              <Login />
+              <Login setStatusLogin={handleLogin} />
             } 
           />
           <Route 
