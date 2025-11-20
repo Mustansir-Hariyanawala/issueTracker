@@ -13,16 +13,48 @@ const Profile = () => {
     name: '',
     email: ''
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get user info from localStorage
-    const name = localStorage.getItem('userName') || 'User';
-    const role = localStorage.getItem('userRole') || 'resident';
-    const email = localStorage.getItem('userEmail') || 'user@example.com';
+    // Fetch user profile from backend using token
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
 
-    setUserInfo({ name, email, role });
-    setFormData({ name, email });
-  }, []);
+        const response = await fetch('http://localhost:3000/api/users/profile', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserInfo({
+            name: data.name,
+            email: data.email,
+            role: data.role
+          });
+          setFormData({
+            name: data.name,
+            email: data.email
+          });
+        } else {
+          navigate('/login');
+        }
+      } catch (err) {
+        console.error('Failed to fetch profile:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({

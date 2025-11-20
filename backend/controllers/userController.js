@@ -11,8 +11,8 @@ export const register = async (req, res, next) => {
       console.log(user);
       return res.status(422).json({ message: "User Already exists" });
     } else {
-      const hashedPass = await bcrypt.hash(password, 10);
-      const newuser = new User({ name, email, password: hashedPass, role });
+      // Password will be hashed automatically by pre-save hook
+      const newuser = new User({ name, email, password, role });
       await newuser.save();
       
       // Generate token
@@ -22,16 +22,8 @@ export const register = async (req, res, next) => {
         { expiresIn: '7d' }
       );
       
-      // Return token and user data
-      return res.status(201).json({
-        token,
-        user: {
-          _id: newuser._id,
-          name: newuser.name,
-          email: newuser.email,
-          role: newuser.role
-        }
-      });
+      // Return token only
+      return res.status(201).json({ token });
     }
   } catch (err) {
     console.log(err);
@@ -57,19 +49,12 @@ export const login = async (req, res, next) => {
     { expiresIn: '7d' }
   );
 
-  res.json({
-    token,
-    user: {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role
-    }
-  });
+  // Return token only
+  res.json({ token });
 };
 
 export const getUser = async (req, res, next) => {
-  const user = await User.findById(req.user.id);
+  const user = await User.findById(req.user.id).select('-password');
   if (!user) return res.status(404).json({ message: "User Not Found" });
   return res.json(user);
 };
