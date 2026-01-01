@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getIssueById, updateIssueStatus } from '../services/api';
 import './IssueDetails.css';
@@ -15,44 +15,48 @@ const IssueDetails = () => {
   const userRole = localStorage.getItem('userRole');
   const statuses = ['New', 'Assigned', 'In Progress', 'Resolved'];
 
-  useEffect(() => {
-    fetchIssueDetails();
+  const fetchIssueDetails = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const data = await getIssueById(id);
+      if (data._id) {
+        setIssue(data);
+        setNewStatus(data.status);
+      } else {
+        setError('Issue not found');
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to load issue details');
+      console.error('Fetch issue error:', err);
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
-    const fetchIssueDetails = async () => {
-        setLoading(true);
-        setError('');
-        try {
-            const data = await getIssueById(id);
-            if (data._id) {
-                setIssue(data);
-                setNewStatus(data.status);
-            } else {
-                setError('Issue not found');
-            }
-        } catch (err) {
-            setError(err.message || 'Failed to load issue details');
-            console.error('Fetch issue error:', err);
-        } finally {
-            setLoading(false);
-        }
-    };    const handleStatusUpdate = async () => {
-        setUpdating(true);
-        try {
-            const response = await updateIssueStatus(id, newStatus);
-            if (response.success || response._id) {
-                alert('Status updated successfully!');
-                fetchIssueDetails();
-            } else {
-                alert('Failed to update status');
-            }
-        } catch (err) {
-            alert(err.message || 'Error updating status');
-            console.error('Update status error:', err);
-        } finally {
-            setUpdating(false);
-        }
-    };  const getStatusColor = (status) => {
+  useEffect(() => {
+    fetchIssueDetails();
+  }, [fetchIssueDetails]);
+
+  const handleStatusUpdate = async () => {
+    setUpdating(true);
+    try {
+      const response = await updateIssueStatus(id, newStatus);
+      if (response.success || response._id) {
+        alert('Status updated successfully!');
+        fetchIssueDetails();
+      } else {
+        alert('Failed to update status');
+      }
+    } catch (err) {
+      alert(err.message || 'Error updating status');
+      console.error('Update status error:', err);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const getStatusColor = (status) => {
     switch (status) {
       case 'New': return '#007bff';
       case 'Assigned': return '#ffc107';
@@ -123,25 +127,20 @@ const IssueDetails = () => {
           <p className="section-content">{issue.description}</p>
         </div>
 
-        {issue.media && (
-          <div className="media-container">
-            <h4 className="section-title">Attached Media</h4>
-            {issue.media.match(/\.(jpg|jpeg|png|gif)$/i) ? (
-              <img 
-                src={`http://localhost:3000${issue.media}`} 
-                alt="Issue" 
-                className="issue-image"
-              />
-            ) : (
-              <video 
-                controls 
-                className="issue-video"
+        <div className="section">
+          <h4 className="section-title">Current Status Progress</h4>
+          <div className="status-timeline">
+            {statuses.map((status, index) => (
+              <div 
+                key={status} 
+                className={`timeline-item ${issue.status === status ? 'active' : ''} ${statuses.indexOf(issue.status) > index ? 'completed' : ''}`}
               >
-                <source src={`http://localhost:3000${issue.media}`} />
-              </video>
-            )}
+                <div className="timeline-dot"></div>
+                <div className="timeline-label">{status}</div>
+              </div>
+            ))}
           </div>
-        )}
+        </div>
 
         <div className="issue-info">
           <h4 className="section-title">Issue Details</h4>
@@ -152,17 +151,21 @@ const IssueDetails = () => {
 
         {userRole === 'admin' && (
           <div className="admin-panel">
-            <h4 className="admin-panel-title">Update Status (Admin Only)</h4>
+            <h4 className="admin-panel-title">Update Issue Status</h4>
+            <p className="admin-panel-subtitle">Change the current status of this issue</p>
             <div className="status-update-form">
-              <select
-                value={newStatus}
-                onChange={(e) => setNewStatus(e.target.value)}
-                className="status-select"
-              >
-                {statuses.map(status => (
-                  <option key={status} value={status}>{status}</option>
-                ))}
-              </select>
+              <div className="status-select-wrapper">
+                <label className="status-label">Select New Status:</label>
+                <select
+                  value={newStatus}
+                  onChange={(e) => setNewStatus(e.target.value)}
+                  className="status-select"
+                >
+                  {statuses.map(status => (
+                    <option key={status} value={status}>{status}</option>
+                  ))}
+                </select>
+              </div>
               <button
                 onClick={handleStatusUpdate}
                 disabled={updating || newStatus === issue.status}

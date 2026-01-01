@@ -65,6 +65,9 @@ function Register({ handleRegistration }) {
     return (
         <div className="register-container">
             <div className="register-card">
+                <div className="back-to-home">
+                    <Link to="/" className="home-link">← Back to Home</Link>
+                </div>
                 <h2 className="register-title">Register</h2>
                 <p className="register-subtitle">Create your account to get started</p>
                 <form onSubmit={onRegister} className="register-form">

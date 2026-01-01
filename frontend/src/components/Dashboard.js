@@ -15,7 +15,16 @@ function Dashboard() {
     const [userName, setUserName] = useState('User');
 
     useEffect(() => {
-        // Fetch user profile to get role
+        // Get role from localStorage first (set during login)
+        const storedRole = localStorage.getItem('userRole');
+        const storedName = localStorage.getItem('userName');
+        
+        if (storedRole) {
+            setUserRole(storedRole);
+            setUserName(storedName || 'User');
+        }
+
+        // Fetch user profile to confirm role
         const fetchUserProfile = async () => {
             try {
                 const token = localStorage.getItem('token');
@@ -35,7 +44,6 @@ function Dashboard() {
                     const user = await response.json();
                     setUserRole(user.role);
                     setUserName(user.name);
-                    // Store for quick access (optional)
                     localStorage.setItem('userRole', user.role);
                     localStorage.setItem('userName', user.name);
                 } else if (response.status === 401) {
@@ -48,8 +56,14 @@ function Dashboard() {
         };
 
         fetchUserProfile();
-        fetchIssues();
     }, [navigate]);
+
+    useEffect(() => {
+        // Fetch issues when userRole is available
+        if (userRole) {
+            fetchIssues();
+        }
+    }, [userRole]);
 
     const fetchIssues = async () => {
         setLoading(true);

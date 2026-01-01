@@ -63,10 +63,10 @@ export const createIssue = async (formData) => {
   const response = await fetch(`${API_BASE_URL}/issues/create`, {
     method: 'POST',
     headers: {
+      'Content-Type': 'application/json',
       ...getAuthHeaders()
-      // Don't set Content-Type for FormData, browser will set it with boundary
     },
-    body: formData
+    body: JSON.stringify(formData)
   });
   
   const data = await response.json();

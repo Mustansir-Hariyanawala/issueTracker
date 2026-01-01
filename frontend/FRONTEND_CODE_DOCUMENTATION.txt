@@ -1,0 +1,3957 @@
+﻿FRONTEND CODE DOCUMENTATION
+================================================================================
+
+
+================================================================================
+FILE: src\App.js
+================================================================================
+
+import './App.css';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './components/Login';
+import Register from './components/Register';
+import Dashboard from './components/Dashboard';
+import Home from './components/Home';
+import Header from './components/Header';
+import ProtectedRoute from './components/ProtectedRoute';
+import CreateIssue from './components/CreateIssue';
+import IssueDetails from './components/IssueDetails';
+import Profile from './components/Profile';
+
+function App() {
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Check if user has visited before and is logged in
+  useEffect(() => {
+    const hasVisited = localStorage.getItem('hasVisited');
+    const token = localStorage.getItem('token');
+    
+    if (!hasVisited) {
+      setIsFirstTimeUser(true);
+    }
+    
+    setIsLoggedIn(!!token);
+    setLoading(false);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('hasVisited');
+    setIsFirstTimeUser(false);
+    setIsLoggedIn(false);
+  };
+
+  const handleRegistration = () => {
+    localStorage.setItem('hasVisited', 'true');
+    setIsFirstTimeUser(false);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+  };
+
+  // Don't render routes until initial check is complete
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div>
+      <BrowserRouter>
+        <Header loginStatus={isLoggedIn} handleLogout={handleLogout}/>
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route 
+            path='/login' 
+            element={
+              localStorage.getItem('token') ? <Navigate to="/dashboard" replace /> : 
+              <Login setStatusLogin={handleLogin} />
+            } 
+          />
+          <Route 
+            path='/register' 
+            element={<Register handleRegistration={handleRegistration} />} 
+          />
+          <Route 
+            path='/dashboard' 
+            element={
+              <ProtectedRoute isFirstTimeUser={isFirstTimeUser}>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/create-issue' 
+            element={
+              <ProtectedRoute isFirstTimeUser={isFirstTimeUser}>
+                <CreateIssue />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/issue/:id' 
+            element={
+              <ProtectedRoute isFirstTimeUser={isFirstTimeUser}>
+                <IssueDetails />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path='/profile' 
+            element={
+              <ProtectedRoute isFirstTimeUser={isFirstTimeUser}>
+                <Profile />
+              </ProtectedRoute>
+            } 
+          />
+          {/* Redirect any unknown routes to home */}
+          <Route path='*' element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </div>
+  );
+}
+
+export default App;
+
+
+
+================================================================================
+FILE: src\App.css
+================================================================================
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+
+================================================================================
+FILE: src\index.js
+================================================================================
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();
+
+
+
+================================================================================
+FILE: src\index.css
+================================================================================
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+
+
+================================================================================
+FILE: src\setupTests.js
+================================================================================
+
+// jest-dom adds custom jest matchers for asserting on DOM nodes.
+// allows you to do things like:
+// expect(element).toHaveTextContent(/react/i)
+// learn more: https://github.com/testing-library/jest-dom
+import '@testing-library/jest-dom';
+
+
+
+================================================================================
+FILE: src\reportWebVitals.js
+================================================================================
+
+const reportWebVitals = onPerfEntry => {
+  if (onPerfEntry && onPerfEntry instanceof Function) {
+    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+      getCLS(onPerfEntry);
+      getFID(onPerfEntry);
+      getFCP(onPerfEntry);
+      getLCP(onPerfEntry);
+      getTTFB(onPerfEntry);
+    });
+  }
+};
+
+export default reportWebVitals;
+
+
+
+================================================================================
+FILE: src\App.test.js
+================================================================================
+
+import { render, screen } from '@testing-library/react';
+import App from './App';
+
+test('renders learn react link', () => {
+  render(<App />);
+  const linkElement = screen.getByText(/learn react/i);
+  expect(linkElement).toBeInTheDocument();
+});
+
+
+
+================================================================================
+FILE: src\services\api.js
+================================================================================
+
+const API_BASE_URL = 'http://localhost:3000/api';
+
+// Helper function to get auth token
+const getAuthToken = () => {
+  return localStorage.getItem('token');
+};
+
+// Helper function to get auth headers
+const getAuthHeaders = () => {
+  const token = getAuthToken();
+  return {
+    'Authorization': `Bearer ${token}`
+  };
+};
+
+// ==================== USER AUTH APIs ====================
+
+export const registerUser = async (userData) => {
+  const response = await fetch(`${API_BASE_URL}/users/register`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(userData)
+  });
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || 'Registration failed');
+  }
+  
+  return data;
+};
+
+export const loginUser = async (credentials) => {
+  const response = await fetch(`${API_BASE_URL}/users/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(credentials)
+  });
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || 'Login failed');
+  }
+  
+  return data;
+};
+
+// ==================== ISSUE APIs ====================
+
+export const createIssue = async (formData) => {
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No authentication token found. Please login again.');
+  }
+  
+  const response = await fetch(`${API_BASE_URL}/issues/create`, {
+    method: 'POST',
+    headers: {
+      ...getAuthHeaders()
+      // Don't set Content-Type for FormData, browser will set it with boundary
+    },
+    body: formData
+  });
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'Failed to create issue');
+  }
+  
+  return data;
+};
+
+export const getAllIssues = async () => {
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No authentication token found. Please login again.');
+  }
+  
+  const response = await fetch(`${API_BASE_URL}/issues`, {
+    method: 'GET',
+    headers: {
+      ...getAuthHeaders()
+    }
+  });
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'Failed to fetch issues');
+  }
+  
+  return data;
+};
+
+export const getMyIssues = async () => {
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No authentication token found. Please login again.');
+  }
+  
+  const response = await fetch(`${API_BASE_URL}/issues/my`, {
+    method: 'GET',
+    headers: {
+      ...getAuthHeaders()
+    }
+  });
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'Failed to fetch your issues');
+  }
+  
+  return data;
+};
+
+export const getIssueById = async (id) => {
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No authentication token found. Please login again.');
+  }
+  
+  const response = await fetch(`${API_BASE_URL}/issues/${id}`, {
+    method: 'GET',
+    headers: {
+      ...getAuthHeaders()
+    }
+  });
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'Failed to fetch issue details');
+  }
+  
+  return data;
+};
+
+export const updateIssueStatus = async (id, status) => {
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No authentication token found. Please login again.');
+  }
+  
+  const response = await fetch(`${API_BASE_URL}/issues/${id}/status`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeaders()
+    },
+    body: JSON.stringify({ status })
+  });
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'Failed to update issue status');
+  }
+  
+  return data;
+};
+
+export const deleteIssue = async (id) => {
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No authentication token found. Please login again.');
+  }
+  
+  const response = await fetch(`${API_BASE_URL}/issues/${id}`, {
+    method: 'DELETE',
+    headers: {
+      ...getAuthHeaders()
+    }
+  });
+  
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'Failed to delete issue');
+  }
+  
+  return data;
+};
+
+
+
+================================================================================
+FILE: src\components\Home.js
+================================================================================
+
+import React from "react";
+import { Link } from "react-router-dom";
+import './Home.css';
+
+function Home() {
+    return (
+        <div className="home-container">
+            <div className="home-content">
+                <h1 className="home-title">Welcome to Issue Tracker</h1>
+                <p className="home-subtitle">Track and manage your issues efficiently</p>
+                <div className="home-buttons">
+                    <Link to="/login">
+                        <button className="home-button">
+                            Login
+                        </button>
+                    </Link>
+                    <Link to="/register">
+                        <button className="home-button secondary">
+                            Get Started
+                        </button>
+                    </Link>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default Home;
+
+
+
+================================================================================
+FILE: src\components\Home.css
+================================================================================
+
+/* Home Page Styles */
+.home-container {
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  color: white;
+  text-align: center;
+  padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.home-container::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: moveBackground 20s linear infinite;
+  opacity: 0.3;
+}
+
+@keyframes moveBackground {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(50px, 50px); }
+}
+
+.home-content {
+  max-width: 900px;
+  animation: fadeInUp 1s ease-out;
+  position: relative;
+  z-index: 1;
+}
+
+.home-title {
+  font-size: 64px;
+  font-weight: 900;
+  margin-bottom: 20px;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(45deg, #fff, #f0f0f0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: titlePulse 2s ease-in-out infinite;
+}
+
+@keyframes titlePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.home-subtitle {
+  font-size: 24px;
+  margin-bottom: 50px;
+  opacity: 0.95;
+  font-weight: 300;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 1.5s ease-out;
+}
+
+.home-buttons {
+  display: flex;
+  gap: 25px;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeInUp 1.2s ease-out 0.3s both;
+}
+
+.home-button {
+  padding: 18px 40px;
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  border-radius: 35px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-decoration: none;
+  color: #667eea;
+  background: white;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.home-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+.home-button:hover::before {
+  left: 100%;
+}
+
+.home-button:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.home-button:active {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.home-button.secondary {
+  background: transparent;
+  border: 3px solid white;
+  color: white;
+  backdrop-filter: blur(10px);
+}
+
+.home-button.secondary:hover {
+  background: white;
+  color: #667eea;
+  border-color: white;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+
+
+================================================================================
+FILE: src\components\Header.js
+================================================================================
+
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import './Header.css';
+
+function Header({ loginStatus, handleLogout }) {
+    const navigate = useNavigate();
+
+    const onLogout = () => {
+        // Clear all stored data
+        localStorage.removeItem('token');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('userEmail');
+        handleLogout();
+        navigate('/');
+    };
+
+    return (
+        <div className="header">
+            <Link to="/" className="header-logo">
+                <span className="header-title">Issue Tracker</span>
+            </Link>
+            <div className="header-actions">
+                {!loginStatus ? (
+                    <Link to="/login">
+                        <button className="header-button">Login</button>
+                    </Link>
+                ) : (
+                    <>
+                        <Link to="/dashboard">
+                            <button className="header-button">Dashboard</button>
+                        </Link>
+                        <Link to="/profile">
+                            <button className="header-button">Profile</button>
+                        </Link>
+                        <button className="header-button" onClick={onLogout}>Logout</button>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+}
+
+export default Header;
+
+
+================================================================================
+FILE: src\components\Header.css
+================================================================================
+
+/* Header Styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-logo {
+  text-decoration: none;
+  color: white;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-logo:hover {
+  transform: scale(1.05) rotate(-2deg);
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+}
+
+.header-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: white;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.header-button {
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.header-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.header-button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.header-button:hover {
+  background: white;
+  color: #667eea;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  border-color: white;
+}
+
+.header-button:active {
+  transform: translateY(-1px) scale(1.02);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+}
+
+
+
+================================================================================
+FILE: src\components\Login.js
+================================================================================
+
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { loginUser } from '../services/api';
+import './Login.css';
+
+const Login = ({ setStatusLogin }) => {
+    const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        email: '',
+        password: ''
+    });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try {
+            const data = await loginUser(formData);
+
+            if (data.token) {
+                // Store token and user data in localStorage
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('hasVisited', 'true');
+                
+                // Store user information
+                if (data.user) {
+                    localStorage.setItem('userRole', data.user.role);
+                    localStorage.setItem('userName', data.user.name);
+                    localStorage.setItem('userEmail', data.user.email);
+                    localStorage.setItem('userId', data.user._id);
+                }
+                
+                // Update login status
+                if (setStatusLogin) {
+                    setStatusLogin();
+                }
+                
+                // Force page reload to update header
+                window.location.href = '/dashboard';
+            } else {
+                setError(data.message || 'Login failed');
+            }
+        } catch (err) {
+            setError(err.message || 'An error occurred. Please try again.');
+            console.error('Login error:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    return (
+        <div className="login-container">
+            <div className="login-card">
+                <h2 className="login-title">Login</h2>
+                <form onSubmit={handleLogin} className="login-form">
+                    <div className="form-group">
+                        <label className="form-label">Email:</label>
+                        <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                            className="form-input"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label className="form-label">Password:</label>
+                        <input
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                            className="form-input"
+                        />
+                    </div>
+                    {error && (
+                        <div className="error-message">
+                            {error}
+                        </div>
+                    )}
+                    <button 
+                        type="submit" 
+                        disabled={loading}
+                        className="submit-button"
+                    >
+                        {loading ? 'Logging in...' : 'Login'}
+                    </button>
+                </form>
+                <div className="login-footer">
+                    Not Registered? <Link to="/register">Register</Link>
+                </div>
+            </div>
+        </div>  
+    );
+}
+
+export default Login;
+
+
+================================================================================
+FILE: src\components\Login.css
+================================================================================
+
+/* Login Page Styles */
+.login-container {
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-container::before {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.15), transparent);
+  border-radius: 50%;
+  top: -200px;
+  right: -200px;
+  animation: float 6s ease-in-out infinite;
+}
+
+.login-container::after {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1), transparent);
+  border-radius: 50%;
+  bottom: -150px;
+  left: -150px;
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-30px) rotate(180deg); }
+}
+
+.login-card {
+  max-width: 450px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 30px;
+  padding: 50px 60px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.login-title {
+  font-size: 36px;
+  font-weight: 800;
+  color: #667eea;
+  margin-bottom: 35px;
+  text-align: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 700;
+  color: #333;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 16px 20px;
+  font-size: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  background: white;
+  outline: none;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  transform: translateY(-2px);
+}
+
+.form-input::placeholder {
+  color: #999;
+}
+
+.error-message {
+  color: #ff4757;
+  background-color: rgba(255, 71, 87, 0.1);
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  margin-bottom: 15px;
+  border-left: 4px solid #ff4757;
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+.submit-button {
+  width: 100%;
+  padding: 18px;
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  margin-top: 10px;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.submit-button:hover::before {
+  width: 400px;
+  height: 400px;
+}
+
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+}
+
+.submit-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.submit-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.login-footer {
+  margin-top: 25px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+}
+
+.login-footer a {
+  color: #667eea;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.login-footer a:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
+================================================================================
+FILE: src\components\Register.js
+================================================================================
+
+import React, { useState } from "react";
+import { useNavigate, Link } from 'react-router-dom';
+import { registerUser } from '../services/api';
+import './Register.css';
+
+function Register({ handleRegistration }) {
+    const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        password: '',
+        role: 'resident'
+    });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const onRegister = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try {
+            const data = await registerUser(formData);
+            
+            console.log('Registration response:', data); // Debug log
+            
+            // Store token and user data
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('hasVisited', 'true');
+                
+                // Store user information
+                if (data.user) {
+                    localStorage.setItem('userRole', data.user.role);
+                    localStorage.setItem('userName', data.user.name);
+                    localStorage.setItem('userEmail', data.user.email);
+                    localStorage.setItem('userId', data.user._id);
+                }
+                
+                // Mark as registered
+                if (handleRegistration) {
+                    handleRegistration();
+                }
+                
+                // Force page reload to update header
+                window.location.href = '/dashboard';
+            } else {
+                setError(data.message || 'Registration failed');
+            }
+        } catch (err) {
+            setError(err.message || 'Registration failed. Please try again.');
+            console.error('Registration error:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="register-container">
+            <div className="register-card">
+                <h2 className="register-title">Register</h2>
+                <p className="register-subtitle">Create your account to get started</p>
+                <form onSubmit={onRegister} className="register-form">
+                    <div className="form-group">
+                        <label className="form-label">Name:</label>
+                        <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            required
+                            className="form-input"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label className="form-label">Email:</label>
+                        <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                            className="form-input"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label className="form-label">Password:</label>
+                        <input
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                            minLength="6"
+                            className="form-input"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label className="form-label">Role:</label>
+                        <select
+                            name="role"
+                            value={formData.role}
+                            onChange={handleChange}
+                            className="form-input"
+                        >
+                            <option value="resident">Resident</option>
+                            <option value="admin">Admin</option>
+                            <option value="technician">Technician</option>
+                        </select>
+                    </div>
+                    {error && (
+                        <div className="error-message">
+                            {error}
+                        </div>
+                    )}
+                    <button 
+                        type="submit"
+                        disabled={loading}
+                        className="submit-button"
+                    >
+                        {loading ? 'Registering...' : 'Register'}
+                    </button>
+                </form>
+                <div className="register-footer">
+                    Already Registered? <Link to="/login">Login</Link>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default Register;
+
+
+================================================================================
+FILE: src\components\Register.css
+================================================================================
+
+/* Register Page Styles */
+.register-container {
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f093fb 0%, #764ba2 50%, #667eea 100%);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.register-container::before {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(255,255,255,0.12), transparent);
+  border-radius: 50%;
+  top: -250px;
+  left: -250px;
+  animation: pulse 8s ease-in-out infinite;
+}
+
+.register-container::after {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08), transparent);
+  border-radius: 50%;
+  bottom: -200px;
+  right: -200px;
+  animation: pulse 6s ease-in-out infinite reverse;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.register-card {
+  max-width: 500px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 30px;
+  padding: 50px 60px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.register-title {
+  font-size: 36px;
+  font-weight: 800;
+  color: #333;
+  margin-bottom: 10px;
+  text-align: center;
+  background: linear-gradient(135deg, #f093fb, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.register-subtitle {
+  color: #666;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 15px;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.register-footer {
+  margin-top: 25px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+}
+
+.register-footer a {
+  color: #667eea;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.register-footer a:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
+================================================================================
+FILE: src\components\Dashboard.js
+================================================================================
+
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { getAllIssues, getMyIssues } from '../services/api';
+import IssueCard from './IssueCard';
+import './Dashboard.css';
+
+function Dashboard() {
+    const navigate = useNavigate();
+    const [issues, setIssues] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [filter, setFilter] = useState('all'); // all, new, assigned, in-progress, resolved
+    const [categoryFilter, setCategoryFilter] = useState('all');
+    const [userRole, setUserRole] = useState(null);
+    const [userName, setUserName] = useState('User');
+
+    useEffect(() => {
+        // Fetch user profile to get role
+        const fetchUserProfile = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    navigate('/login');
+                    return;
+                }
+
+                const response = await fetch('http://localhost:3000/api/users/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    setUserRole(user.role);
+                    setUserName(user.name);
+                    // Store for quick access (optional)
+                    localStorage.setItem('userRole', user.role);
+                    localStorage.setItem('userName', user.name);
+                } else if (response.status === 401) {
+                    navigate('/login');
+                }
+            } catch (err) {
+                console.error('Failed to fetch user profile:', err);
+                navigate('/login');
+            }
+        };
+
+        fetchUserProfile();
+        fetchIssues();
+    }, [navigate]);
+
+    const fetchIssues = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            let data;
+            if (userRole === 'admin' || userRole === 'technician') {
+                data = await getAllIssues();
+            } else {
+                data = await getMyIssues();
+            }
+
+            if (Array.isArray(data)) {
+                setIssues(data);
+            } else if (data.issues && Array.isArray(data.issues)) {
+                setIssues(data.issues);
+            } else {
+                setIssues([]);
+            }
+        } catch (err) {
+            setError(err.message || 'Failed to load issues');
+            console.error('Fetch issues error:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getFilteredIssues = () => {
+        let filtered = issues;
+
+        if (filter !== 'all') {
+            const statusMap = {
+                'new': 'New',
+                'assigned': 'Assigned',
+                'in-progress': 'In Progress',
+                'resolved': 'Resolved'
+            };
+            filtered = filtered.filter(issue => issue.status === statusMap[filter]);
+        }
+
+        if (categoryFilter !== 'all') {
+            filtered = filtered.filter(issue => issue.category === categoryFilter);
+        }
+
+        return filtered;
+    };
+
+    const getStatusCounts = () => {
+        return {
+            total: issues.length,
+            new: issues.filter(i => i.status === 'New').length,
+            assigned: issues.filter(i => i.status === 'Assigned').length,
+            inProgress: issues.filter(i => i.status === 'In Progress').length,
+            resolved: issues.filter(i => i.status === 'Resolved').length
+        };
+    };
+
+    const counts = getStatusCounts();
+    const filteredIssues = getFilteredIssues();
+
+    return (
+        <div className="dashboard-container">
+            <div className="dashboard-header">
+                <h1 className="dashboard-title">
+                    {userRole === 'admin' ? 'Admin Dashboard' : 
+                     userRole === 'technician' ? 'Technician Dashboard' : 
+                     'My Issues'}
+                </h1>
+                <p className="dashboard-subtitle">
+                    Welcome, {userName || 'User'}!
+                </p>
+            </div>
+
+            {/* Statistics Cards */}
+            <div className="stats-grid">
+                <div className="stat-card" style={{'--card-color': '#007bff', '--card-color-dark': '#0056b3'}}>
+                    <h3 className="stat-number">{counts.total}</h3>
+                    <p className="stat-label">Total Issues</p>
+                </div>
+                <div className="stat-card" style={{'--card-color': '#17a2b8', '--card-color-dark': '#117a8b'}}>
+                    <h3 className="stat-number">{counts.new}</h3>
+                    <p className="stat-label">New</p>
+                </div>
+                <div className="stat-card" style={{'--card-color': '#ffc107', '--card-color-dark': '#d39e00'}}>
+                    <h3 className="stat-number">{counts.assigned}</h3>
+                    <p className="stat-label">Assigned</p>
+                </div>
+                <div className="stat-card" style={{'--card-color': '#fd7e14', '--card-color-dark': '#dc6502'}}>
+                    <h3 className="stat-number">{counts.inProgress}</h3>
+                    <p className="stat-label">In Progress</p>
+                </div>
+                <div className="stat-card" style={{'--card-color': '#28a745', '--card-color-dark': '#1e7e34'}}>
+                    <h3 className="stat-number">{counts.resolved}</h3>
+                    <p className="stat-label">Resolved</p>
+                </div>
+            </div>
+
+            {/* Actions */}
+            {userRole === 'resident' && (
+                <div className="dashboard-actions">
+                    <button
+                        onClick={() => navigate('/create-issue')}
+                        className="create-issue-button"
+                    >
+                        + Report New Issue
+                    </button>
+                </div>
+            )}
+
+            {/* Filters */}
+            <div className="filters-container">
+                <div className="filter-group">
+                    <label className="filter-label">Status:</label>
+                    <select
+                        value={filter}
+                        onChange={(e) => setFilter(e.target.value)}
+                        className="filter-select"
+                    >
+                        <option value="all">All</option>
+                        <option value="new">New</option>
+                        <option value="assigned">Assigned</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                    </select>
+                </div>
+                <div className="filter-group">
+                    <label className="filter-label">Category:</label>
+                    <select
+                        value={categoryFilter}
+                        onChange={(e) => setCategoryFilter(e.target.value)}
+                        className="filter-select"
+                    >
+                        <option value="all">All</option>
+                        <option value="sanitation">Sanitation</option>
+                        <option value="water">Water</option>
+                        <option value="security">Security</option>
+                        <option value="electrical">Electrical</option>
+                        <option value="parking">Parking</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <button
+                    onClick={fetchIssues}
+                    className="refresh-button"
+                >
+                    Refresh
+                </button>
+            </div>
+
+            {/* Issues List */}
+            <div className="issues-section">
+                <h2 className="issues-title">Issues</h2>
+                {loading && <p className="loading-message">Loading issues...</p>}
+                {error && <p className="error-message-dashboard">{error}</p>}
+                {!loading && !error && filteredIssues.length === 0 && (
+                    <div className="empty-message">
+                        <p>No issues found.</p>
+                        {userRole === 'resident' && (
+                            <button
+                                onClick={() => navigate('/create-issue')}
+                                className="first-issue-button"
+                            >
+                                Create First Issue
+                            </button>
+                        )}
+                    </div>
+                )}
+                {!loading && !error && filteredIssues.map(issue => (
+                    <IssueCard key={issue._id} issue={issue} />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+export default Dashboard;
+
+
+
+================================================================================
+FILE: src\components\Dashboard.css
+================================================================================
+
+/* Dashboard Styles */
+.dashboard-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 50px 30px;
+  animation: fadeIn 0.6s ease-out;
+  position: relative;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dashboard-header {
+  margin-bottom: 50px;
+  text-align: center;
+}
+
+.dashboard-title {
+  font-size: 48px;
+  font-weight: 900;
+  color: #333;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -1px;
+  animation: titleShine 3s ease-in-out infinite;
+}
+
+@keyframes titleShine {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.2); }
+}
+
+.dashboard-subtitle {
+  color: #666;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 30px;
+  margin-bottom: 50px;
+}
+
+.stat-card {
+  padding: 35px 25px;
+  background: linear-gradient(135deg, var(--card-color) 0%, var(--card-color-dark) 100%);
+  color: white;
+  border-radius: 25px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1), transparent);
+  animation: rotate 10s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.stat-card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+.stat-number {
+  margin: 0 0 12px 0;
+  font-size: 52px;
+  font-weight: 900;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 1;
+  animation: numberPop 0.6s ease-out;
+}
+
+@keyframes numberPop {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.stat-label {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  opacity: 0.95;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  z-index: 1;
+}
+
+.dashboard-actions {
+  margin-bottom: 30px;
+}
+
+.create-issue-button {
+  padding: 18px 40px;
+  font-size: 18px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.create-issue-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.create-issue-button:hover::before {
+  width: 400px;
+  height: 400px;
+}
+
+.create-issue-button:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 35px rgba(40, 167, 69, 0.5);
+}
+
+.filters-container {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 30px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 40px;
+  border: 2px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.filters-container:hover {
+  border-color: rgba(102, 126, 234, 0.2);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-label {
+  font-weight: 700;
+  color: #667eea;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.filter-select {
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 2px solid #e0e0e0;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: white;
+}
+
+.filter-select:hover {
+  border-color: #667eea;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.issues-section {
+  margin-top: 30px;
+}
+
+.issues-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #667eea;
+  display: inline-block;
+}
+
+.loading-message,
+.error-message-dashboard,
+.empty-message {
+  text-align: center;
+  padding: 40px;
+  font-size: 16px;
+  color: #666;
+}
+
+.error-message-dashboard {
+  color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.1);
+  border-radius: 15px;
+  border: 2px solid #dc3545;
+}
+
+.first-issue-button {
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.first-issue-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.refresh-button {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: auto;
+  transition: all 0.3s ease;
+}
+
+.refresh-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.issues-section {
+  margin-top: 30px;
+}
+
+.issues-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #667eea;
+  display: inline-block;
+}
+
+.loading-message,
+.error-message-dashboard,
+.empty-message {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 16px;
+}
+
+.error-message-dashboard {
+  color: #e74c3c;
+}
+
+.first-issue-button {
+  margin-top: 15px;
+  padding: 12px 25px;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.first-issue-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+
+
+================================================================================
+FILE: src\components\CreateIssue.js
+================================================================================
+
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { createIssue } from '../services/api';
+
+const CreateIssue = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    category: 'sanitation',
+    priority: 'Low'
+  });
+  const [mediaFile, setMediaFile] = useState(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const categories = ['sanitation', 'water', 'security', 'electrical', 'parking', 'other'];
+  const priorities = ['Low', 'Medium', 'High'];
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setMediaFile(file);
+    }
+  };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try {
+            const formDataToSend = new FormData();
+            formDataToSend.append('title', formData.title);
+            formDataToSend.append('description', formData.description);
+            formDataToSend.append('category', formData.category);
+            formDataToSend.append('priority', formData.priority);
+            
+            if (mediaFile) {
+                formDataToSend.append('media', mediaFile);
+            }
+
+            const response = await createIssue(formDataToSend);
+
+            if (response.success || response._id) {
+                alert('Issue created successfully!');
+                navigate('/dashboard');
+            } else {
+                setError(response.message || 'Failed to create issue');
+            }
+        } catch (err) {
+            setError(err.message || 'An error occurred. Please try again.');
+            console.error('Create issue error:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="create-issue-container">
+            <div className="create-issue-card">
+                <h2 className="create-issue-title">Report an Issue</h2>
+                <form onSubmit={handleSubmit} className="create-issue-form">
+                    <div className="form-group">
+                        <label className="form-label">
+                            Title *
+                        </label>
+                        <input
+                            type="text"
+                            name="title"
+                            value={formData.title}
+                            onChange={handleChange}
+                            required
+                            placeholder="Brief description of the issue"
+                            className="form-input"
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">
+                            Description *
+                        </label>
+                        <textarea
+                            name="description"
+                            value={formData.description}
+                            onChange={handleChange}
+                            required
+                            rows="5"
+                            placeholder="Detailed description of the issue"
+                            className="form-input"
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">
+                            Category *
+                        </label>
+                        <select
+                            name="category"
+                            value={formData.category}
+                            onChange={handleChange}
+                            className="form-input"
+                        >
+                            {categories.map(cat => (
+                                <option key={cat} value={cat}>
+                                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">
+                            Priority *
+                        </label>
+                        <select
+                            name="priority"
+                            value={formData.priority}
+                            onChange={handleChange}
+                            className="form-input"
+                        >
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">
+                            Attach Image/Video (Optional)
+                        </label>
+                        <input
+                            type="file"
+                            name="media"
+                            onChange={handleFileChange}
+                            accept="image/*,video/*"
+                            className="file-input"
+                        />
+                        {mediaFile && <p className="file-name">Selected: {mediaFile.name}</p>}
+                    </div>
+
+                    {error && (
+                        <div className="error-message">
+                            {error}
+                        </div>
+                    )}
+
+                    <div className="form-actions">
+                        <button type="submit" disabled={loading} className="btn-submit">
+                            {loading ? 'Submitting...' : 'Submit Issue'}
+                        </button>
+                        <button 
+                            type="button" 
+                            onClick={() => navigate('/dashboard')}
+                            className="btn-cancel"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+export default CreateIssue;
+
+
+
+================================================================================
+FILE: src\components\CreateIssue.css
+================================================================================
+
+/* Create Issue Styles */
+.create-issue-container {
+  max-width: 800px;
+  margin: 50px auto;
+  padding: 20px;
+  animation: slideUp 0.6s ease-out;
+  position: relative;
+  min-height: 80vh;
+}
+
+.create-issue-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  opacity: 0.05;
+  z-index: -1;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.1) rotate(5deg); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.create-issue-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+  backdrop-filter: blur(20px);
+  border-radius: 30px;
+  padding: 50px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.create-issue-title {
+  font-size: 40px;
+  font-weight: 900;
+  color: #333;
+  margin-bottom: 40px;
+  text-align: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+
+.create-issue-form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.form-group {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #667eea;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 16px 20px;
+  font-size: 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #ffffff, #f8f9fa);
+  color: #333;
+  font-weight: 500;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  background: white;
+}
+
+.form-input::placeholder {
+  color: #adb5bd;
+}
+
+textarea.form-input {
+  resize: vertical;
+  min-height: 120px;
+  font-family: inherit;
+}
+
+select.form-input {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 45px;
+}
+
+select.form-input:hover {
+  border-color: #764ba2;
+}
+
+.file-input {
+  cursor: pointer;
+  width: 100%;
+  padding: 16px 20px;
+  font-size: 15px;
+  border: 2px dashed #667eea;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+  color: #667eea;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+.file-input:hover {
+  border-color: #764ba2;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  transform: scale(1.01);
+}
+
+.file-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+}
+
+.file-name {
+  font-size: 14px;
+  color: #28a745;
+  margin-top: 12px;
+  font-weight: 700;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(32, 201, 151, 0.1));
+  border-radius: 10px;
+  border-left: 4px solid #28a745;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.error-message {
+  color: #ff4757;
+  background: rgba(255, 71, 87, 0.1);
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  margin-bottom: 20px;
+  border-left: 4px solid #ff4757;
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.btn-submit {
+  flex: 1;
+  padding: 18px;
+  font-size: 18px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-submit::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-submit:hover::before {
+  width: 400px;
+  height: 400px;
+}
+
+.btn-submit:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(40, 167, 69, 0.5);
+}
+
+.btn-submit:disabled {
+  background: linear-gradient(135deg, #ccc, #aaa);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-cancel {
+  flex: 1;
+  padding: 18px;
+  font-size: 18px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #6c757d, #495057);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
+================================================================================
+FILE: src\components\IssueCard.js
+================================================================================
+
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import './IssueCard.css';
+
+const IssueCard = ({ issue }) => {
+  const navigate = useNavigate();
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'New': return '#007bff';
+      case 'Assigned': return '#ffc107';
+      case 'In Progress': return '#17a2b8';
+      case 'Resolved': return '#28a745';
+      default: return '#6c757d';
+    }
+  };
+
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'High': return '#dc3545';
+      case 'Medium': return '#ffc107';
+      case 'Low': return '#28a745';
+      default: return '#6c757d';
+    }
+  };
+
+  return (
+    <div 
+      onClick={() => navigate(`/issue/${issue._id}`)}
+      className="issue-card"
+    >
+      <div className="issue-card-header">
+        <h3 className="issue-card-title">
+          {issue.title}
+        </h3>
+        <p className="issue-card-description">
+          {issue.description}
+        </p>
+      </div>
+
+      <div className="issue-card-badges">
+        <span className="badge badge-status" style={{
+          backgroundColor: getStatusColor(issue.status)
+        }}>
+          {issue.status}
+        </span>
+        <span className="badge badge-priority" style={{
+          backgroundColor: getPriorityColor(issue.priority)
+        }}>
+          {issue.priority}
+        </span>
+        <span className="badge badge-category">
+          {issue.category.charAt(0).toUpperCase() + issue.category.slice(1)}
+        </span>
+      </div>
+
+      <div className="issue-card-footer">
+        Created: {new Date(issue.createdAt).toLocaleDateString()}
+      </div>
+    </div>
+  );
+};
+
+export default IssueCard;
+
+
+
+================================================================================
+FILE: src\components\IssueCard.css
+================================================================================
+
+/* Issue Card Styles - Modern & Beautiful */
+.issue-card {
+  border: none;
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  background: white;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.issue-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.issue-card:hover::before {
+  opacity: 1;
+}
+
+.issue-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.25);
+  border-color: rgba(102, 126, 234, 0.2);
+}
+
+.issue-card-header {
+  margin-bottom: 18px;
+}
+
+.issue-card-title {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.4;
+  transition: color 0.3s ease;
+}
+
+.issue-card:hover .issue-card-title {
+  color: #667eea;
+}
+
+.issue-card-description {
+  margin: 0;
+  font-size: 15px;
+  color: #666;
+  line-height: 1.6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-weight: 400;
+}
+
+.issue-card-badges {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.badge {
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s ease;
+  animation: badgeFadeIn 0.4s ease-out;
+}
+
+.badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.issue-badge {
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  animation: badgeFadeIn 0.4s ease-out;
+}
+
+@keyframes badgeFadeIn {
+  from { 
+    opacity: 0; 
+    transform: scale(0.9) translateY(5px);
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1) translateY(0);
+  }
+}
+
+.badge-status {
+  color: white;
+}
+
+.badge-priority {
+  color: white;
+}
+
+.badge-category {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 700;
+}
+
+.issue-card-footer {
+  font-size: 13px;
+  color: #999;
+  margin-top: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.issue-card-footer::before {
+  content: 'ðŸ“…';
+  font-size: 14px;
+}
+
+
+
+================================================================================
+FILE: src\components\IssueDetails.js
+================================================================================
+
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { getIssueById, updateIssueStatus } from '../services/api';
+import './IssueDetails.css';
+
+const IssueDetails = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [issue, setIssue] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [updating, setUpdating] = useState(false);
+  const [newStatus, setNewStatus] = useState('');
+
+  const userRole = localStorage.getItem('userRole');
+  const statuses = ['New', 'Assigned', 'In Progress', 'Resolved'];
+
+  useEffect(() => {
+    fetchIssueDetails();
+  }, [id]);
+
+    const fetchIssueDetails = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const data = await getIssueById(id);
+            if (data._id) {
+                setIssue(data);
+                setNewStatus(data.status);
+            } else {
+                setError('Issue not found');
+            }
+        } catch (err) {
+            setError(err.message || 'Failed to load issue details');
+            console.error('Fetch issue error:', err);
+        } finally {
+            setLoading(false);
+        }
+    };    const handleStatusUpdate = async () => {
+        setUpdating(true);
+        try {
+            const response = await updateIssueStatus(id, newStatus);
+            if (response.success || response._id) {
+                alert('Status updated successfully!');
+                fetchIssueDetails();
+            } else {
+                alert('Failed to update status');
+            }
+        } catch (err) {
+            alert(err.message || 'Error updating status');
+            console.error('Update status error:', err);
+        } finally {
+            setUpdating(false);
+        }
+    };  const getStatusColor = (status) => {
+    switch (status) {
+      case 'New': return '#007bff';
+      case 'Assigned': return '#ffc107';
+      case 'In Progress': return '#17a2b8';
+      case 'Resolved': return '#28a745';
+      default: return '#6c757d';
+    }
+  };
+
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'High': return '#dc3545';
+      case 'Medium': return '#ffc107';
+      case 'Low': return '#28a745';
+      default: return '#6c757d';
+    }
+  };
+
+  if (loading) {
+    return <div className="loading-container">Loading...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="error-container">
+        <p className="error-text">{error}</p>
+        <button onClick={() => navigate('/dashboard')} className="error-button">
+          Back to Dashboard
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="issue-details-container">
+      <button 
+        onClick={() => navigate('/dashboard')}
+        className="back-button"
+      >
+        Back to Dashboard
+      </button>
+
+      <div className="issue-details-card">
+        <div className="issue-header">
+          <h2 className="issue-title-detail">{issue.title}</h2>
+          <div className="issue-badges">
+            <span className="badge" style={{ 
+              backgroundColor: getStatusColor(issue.status)
+            }}>
+              {issue.status}
+            </span>
+            <span className="badge" style={{ 
+              backgroundColor: getPriorityColor(issue.priority)
+            }}>
+              {issue.priority} Priority
+            </span>
+            <span className="badge" style={{ 
+              backgroundColor: '#e9ecef',
+              color: '#495057'
+            }}>
+              {issue.category.charAt(0).toUpperCase() + issue.category.slice(1)}
+            </span>
+          </div>
+        </div>
+
+        <div className="section">
+          <h4 className="section-title">Description</h4>
+          <p className="section-content">{issue.description}</p>
+        </div>
+
+        {issue.media && (
+          <div className="media-container">
+            <h4 className="section-title">Attached Media</h4>
+            {issue.media.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+              <img 
+                src={`http://localhost:3000${issue.media}`} 
+                alt="Issue" 
+                className="issue-image"
+              />
+            ) : (
+              <video 
+                controls 
+                className="issue-video"
+              >
+                <source src={`http://localhost:3000${issue.media}`} />
+              </video>
+            )}
+          </div>
+        )}
+
+        <div className="issue-info">
+          <h4 className="section-title">Issue Details</h4>
+          <p><strong>Created:</strong> {new Date(issue.createdAt).toLocaleString()}</p>
+          <p><strong>Last Updated:</strong> {new Date(issue.updatedAt).toLocaleString()}</p>
+          {issue.createdBy && <p><strong>Reported By:</strong> {issue.createdBy.name || 'Resident'}</p>}
+        </div>
+
+        {userRole === 'admin' && (
+          <div className="admin-panel">
+            <h4 className="admin-panel-title">Update Status (Admin Only)</h4>
+            <div className="status-update-form">
+              <select
+                value={newStatus}
+                onChange={(e) => setNewStatus(e.target.value)}
+                className="status-select"
+              >
+                {statuses.map(status => (
+                  <option key={status} value={status}>{status}</option>
+                ))}
+              </select>
+              <button
+                onClick={handleStatusUpdate}
+                disabled={updating || newStatus === issue.status}
+                className="update-button"
+              >
+                {updating ? 'Updating...' : 'Update Status'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default IssueDetails;
+
+
+
+================================================================================
+FILE: src\components\IssueDetails.css
+================================================================================
+
+/* Issue Details Styles - Modern & Clean */
+.issue-details-container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 20px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.back-button {
+  padding: 12px 28px;
+  margin-bottom: 25px;
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-button::before {
+  content: 'â†';
+  font-size: 18px;
+}
+
+.back-button:hover {
+  background: #667eea;
+  color: white;
+  transform: translateX(-5px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.issue-details-card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+}
+
+.issue-header {
+  margin-bottom: 35px;
+  padding-bottom: 25px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.issue-title-detail {
+  margin: 0 0 20px 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.3;
+}
+
+.issue-badges {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.section {
+  margin-bottom: 30px;
+  padding: 24px;
+  background: #f8f9fa;
+  border-radius: 16px;
+  border-left: 4px solid #667eea;
+  transition: all 0.3s ease;
+}
+
+.section:hover {
+  background: #f0f2ff;
+  border-left-color: #764ba2;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
+}
+
+.section-title {
+  margin-bottom: 12px;
+  color: #667eea;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title::before {
+  content: 'â€¢';
+  font-size: 24px;
+}
+
+.section-content {
+  line-height: 1.7;
+  color: #4a4a4a;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.media-container {
+  margin-bottom: 30px;
+  padding: 24px;
+  background: #f8f9fa;
+  border-radius: 16px;
+  border-left: 4px solid #f093fb;
+}
+
+.issue-image,
+.issue-video {
+  max-width: 100%;
+  border-radius: 12px;
+  margin-top: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.issue-image:hover,
+.issue-video:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+.issue-info {
+  margin-bottom: 30px;
+  padding: 24px;
+  background: #fff8f0;
+  border-radius: 16px;
+  border-left: 4px solid #ffc107;
+}
+
+.issue-info p {
+  margin: 10px 0;
+  color: #4a4a4a;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.issue-info strong {
+  color: #1a1a1a;
+  font-weight: 700;
+  min-width: 140px;
+}
+
+.admin-panel {
+  margin-top: 35px;
+  padding: 28px;
+  background: linear-gradient(135deg, #f0f2ff, #fff0fb);
+  border-radius: 16px;
+  border: 2px solid #667eea;
+}
+
+.admin-panel-title {
+  margin-bottom: 20px;
+  color: #667eea;
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-panel-title::before {
+  content: 'âš™';
+  font-size: 22px;
+}
+
+.status-update-form {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.status-select {
+  flex: 1;
+  min-width: 200px;
+  padding: 14px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.status-select:hover {
+  border-color: #667eea;
+}
+
+.status-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.update-button {
+  padding: 14px 32px;
+  font-size: 15px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.update-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.update-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 60px 20px;
+  color: #667eea;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.error-message {
+  padding: 20px;
+  background: #ffe6e6;
+  color: #d32f2f;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  border-left: 4px solid #d32f2f;
+}
+
+/* Status Badge Colors */
+.badge.status-new {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.badge.status-assigned {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.badge.status-in-progress {
+  background: #fff8e1;
+  color: #f9a825;
+}
+
+.badge.status-resolved {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.badge.priority-low {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.badge.priority-medium {
+  background: #fff8e1;
+  color: #f9a825;
+}
+
+.badge.priority-high {
+  background: #ffe6e6;
+  color: #d32f2f;
+}
+
+.badge.category {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+@media (max-width: 768px) {
+  .issue-details-card {
+    padding: 24px;
+  }
+  
+  .issue-title-detail {
+    font-size: 24px;
+  }
+  
+  .status-update-form {
+    flex-direction: column;
+  }
+  
+  .status-select,
+  .update-button {
+    width: 100%;
+  }
+}
+
+.admin-panel:hover {
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.25);
+  transform: translateY(-3px);
+  border-color: rgba(118, 75, 162, 0.4);
+}
+
+.admin-panel-title {
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.status-update-form {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.status-select {
+  flex: 1;
+  min-width: 220px;
+  padding: 15px 20px;
+  font-size: 16px;
+  border: 2px solid rgba(102, 126, 234, 0.3);
+  border-radius: 12px;
+  background: white;
+  color: #495057;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.status-select:hover {
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  transform: translateY(-2px);
+}
+
+.status-select:focus {
+  border-color: #764ba2;
+  box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.2);
+}
+
+.update-button {
+  padding: 15px 30px;
+  font-size: 16px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.update-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.update-button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.update-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+}
+
+.update-button:active {
+  transform: translateY(0);
+}
+
+.update-button:disabled {
+  background: linear-gradient(135deg, #ccc, #999);
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.6;
+}
+
+.update-button:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.update-button:disabled::before {
+  display: none;
+}
+
+.error-container {
+  text-align: center;
+  margin-top: 60px;
+  padding: 40px;
+}
+
+.error-text {
+  color: #ff4757;
+  font-size: 18px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.error-button {
+  padding: 14px 30px;
+  margin-top: 15px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.error-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.loading-container {
+  text-align: center;
+  margin-top: 60px;
+  padding: 40px;
+  font-size: 18px;
+  color: #666;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+
+
+================================================================================
+FILE: src\components\Profile.js
+================================================================================
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import './Profile.css';
+
+const Profile = () => {
+  const navigate = useNavigate();
+  const [userInfo, setUserInfo] = useState({
+    name: '',
+    email: '',
+    role: ''
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: ''
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch user profile from backend using token
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
+        const response = await fetch('http://localhost:3000/api/users/profile', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserInfo({
+            name: data.name,
+            email: data.email,
+            role: data.role
+          });
+          setFormData({
+            name: data.name,
+            email: data.email
+          });
+        } else {
+          navigate('/login');
+        }
+      } catch (err) {
+        console.error('Failed to fetch profile:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [navigate]);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSave = () => {
+    // TEMPORARY: Just update localStorage for testing
+    localStorage.setItem('userName', formData.name);
+    localStorage.setItem('userEmail', formData.email);
+    
+    setUserInfo({
+      ...userInfo,
+      name: formData.name,
+      email: formData.email
+    });
+    setIsEditing(false);
+    alert('Profile updated successfully!');
+
+    /* Uncomment when backend is ready
+    const updateProfile = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/users/profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(formData)
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setUserInfo({ ...userInfo, name: data.name, email: data.email });
+          setIsEditing(false);
+          alert('Profile updated successfully!');
+        } else {
+          alert('Failed to update profile');
+        }
+      } catch (err) {
+        alert('Error updating profile');
+      }
+    };
+    updateProfile();
+    */
+  };
+
+  const handleCancel = () => {
+    setFormData({ name: userInfo.name, email: userInfo.email });
+    setIsEditing(false);
+  };
+
+  const getRoleBadgeColor = (role) => {
+    switch (role) {
+      case 'admin': return '#dc3545';
+      case 'technician': return '#ffc107';
+      case 'resident': return '#28a745';
+      default: return '#6c757d';
+    }
+  };
+
+  return (
+    <div className="profile-container">
+      <button
+        onClick={() => navigate('/dashboard')}
+        className="back-button"
+      >
+        Back to Dashboard
+      </button>
+
+      <div className="profile-card">
+        <div className="profile-header">
+          <div className="profile-avatar-section">
+            <div className="profile-avatar">
+              {userInfo.name.charAt(0).toUpperCase()}
+            </div>
+            <h2 className="profile-name">{userInfo.name}</h2>
+            <span className="role-badge">
+              {userInfo.role}
+            </span>
+          </div>
+        </div>
+
+        <div className="profile-content">
+          {!isEditing ? (
+            <div className="profile-view">
+              <h3 className="profile-section-title">Personal Information</h3>
+              
+              <div className="profile-field">
+                <label className="profile-field-label">
+                  Full Name
+                </label>
+                <p className="profile-field-value">
+                  {userInfo.name}
+                </p>
+              </div>
+
+              <div className="profile-field">
+                <label className="profile-field-label">
+                  Email Address
+                </label>
+                <p className="profile-field-value">
+                  {userInfo.email}
+                </p>
+              </div>
+
+              <div className="profile-field">
+                <label className="profile-field-label">
+                  Account Role
+                </label>
+                <p className="profile-field-value profile-role-capitalize">
+                  {userInfo.role}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setIsEditing(true)}
+                className="edit-profile-button"
+              >
+                âœï¸ Edit Profile
+              </button>
+            </div>
+          ) : (
+            <div className="profile-edit-form">
+              <h3 className="profile-section-title">Edit Information</h3>
+              
+              <div className="form-group">
+                <label className="form-label">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="form-input"
+                  placeholder="Enter your full name"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="form-input"
+                  placeholder="Enter your email"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">
+                  Account Role (Read Only)
+                </label>
+                <div className="form-input" style={{ background: '#f0f0f0', cursor: 'not-allowed' }}>
+                  {userInfo.role}
+                </div>
+              </div>
+
+              <div className="form-actions">
+                <button
+                  onClick={handleSave}
+                  className="save-button"
+                >
+                  ðŸ’¾ Save Changes
+                </button>
+                <button
+                  onClick={handleCancel}
+                  className="cancel-button"
+                >
+                  âœ– Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Profile;
+
+
+
+================================================================================
+FILE: src\components\Profile.css
+================================================================================
+
+/* Profile Styles - Modern & Clean */
+.profile-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.back-button {
+  padding: 12px 28px;
+  margin-bottom: 25px;
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-button::before {
+  content: '';
+  font-size: 18px;
+}
+
+.back-button:hover {
+  background: #667eea;
+  color: white;
+  transform: translateX(-5px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.profile-card {
+  background: white;
+  border-radius: 24px;
+  padding: 0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  overflow: hidden;
+}
+
+.profile-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 60px 50px 80px;
+  text-align: center;
+  position: relative;
+}
+
+.profile-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: white;
+  border-radius: 40px 40px 0 0;
+}
+
+.profile-avatar-section {
+  text-align: center;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: white;
+  color: #667eea;
+  font-size: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-weight: 700;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border: 5px solid white;
+  position: relative;
+  z-index: 2;
+}
+
+.profile-name {
+  margin: 0 0 15px 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: white;
+  position: relative;
+  z-index: 2;
+}
+
+.role-badge {
+  padding: 8px 24px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  z-index: 2;
+}
+
+.profile-content {
+  padding: 40px 50px 50px;
+}
+
+.profile-view {
+  margin-top: 0;
+}
+
+.profile-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 25px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.profile-field {
+  margin-bottom: 24px;
+  transition: transform 0.2s ease;
+}
+
+.profile-field:hover {
+  transform: translateX(3px);
+}
+
+.profile-field-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #667eea;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.profile-field-value {
+  margin: 0;
+  font-size: 16px;
+  padding: 14px 18px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  color: #1a1a1a;
+  font-weight: 500;
+  border: 1px solid #e9ecef;
+}
+
+.profile-role-capitalize {
+  text-transform: capitalize;
+}
+
+.edit-profile-button {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 30px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.edit-profile-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.profile-edit-form {
+  margin-top: 0;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #667eea;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 18px;
+  font-size: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background: white;
+  color: #333;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  box-sizing: border-box;
+}
+
+.form-input:hover {
+  border-color: #667eea;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.save-button,
+.cancel-button {
+  flex: 1;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.save-button {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.save-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.cancel-button {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.cancel-button:hover {
+  background: #e0e0e0;
+}
+
+@media (max-width: 768px) {
+  .profile-card {
+    border-radius: 16px;
+  }
+  
+  .profile-header,
+  .profile-content {
+    padding: 40px 24px;
+  }
+  
+  .profile-name {
+    font-size: 24px;
+  }
+  
+  .profile-avatar {
+    width: 100px;
+    height: 100px;
+    font-size: 40px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+}
+
+
+
+================================================================================
+FILE: src\components\ProtectedRoute.js
+================================================================================
+
+import React, { useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
+
+const ProtectedRoute = ({ children, isAuthenticated, isFirstTimeUser }) => {
+    const [isReady, setIsReady] = useState(false);
+
+    useEffect(() => {
+        // Check token from localStorage directly on mount
+        const token = localStorage.getItem('token');
+        const hasVisited = localStorage.getItem('hasVisited');
+        
+        // If first time user, redirect to registration
+        if (!hasVisited) {
+            return;
+        }
+        
+        // If no token, user is not authenticated
+        if (!token) {
+            setIsReady(true);
+            return;
+        }
+
+        // Token exists, authenticated
+        setIsReady(true);
+    }, []);
+
+    if (!isReady) {
+        return <div>Loading...</div>;
+    }
+
+    // If first time user, redirect to registration
+    if (isFirstTimeUser) {
+        return <Navigate to="/register" replace />;
+    }
+    
+    // Check token directly instead of relying on parent state
+    const token = localStorage.getItem('token');
+    
+    // If not authenticated, redirect to login
+    if (!isAuthenticated && !token) {
+        return <Navigate to="/login" replace />;
+    }
+    
+    // If authenticated, render the protected component
+    return children;
+};
+
+export default ProtectedRoute;
+
+
+
+================================================================================
+FILE: public\index.html
+================================================================================
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <title>React App</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  </body>
+</html>
+
+
+

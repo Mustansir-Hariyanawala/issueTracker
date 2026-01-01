@@ -10,7 +10,6 @@ const CreateIssue = () => {
     category: 'sanitation',
     priority: 'Low'
   });
-  const [mediaFile, setMediaFile] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -24,30 +23,13 @@ const CreateIssue = () => {
     });
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setMediaFile(file);
-    }
-  };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
 
         try {
-            const formDataToSend = new FormData();
-            formDataToSend.append('title', formData.title);
-            formDataToSend.append('description', formData.description);
-            formDataToSend.append('category', formData.category);
-            formDataToSend.append('priority', formData.priority);
-            
-            if (mediaFile) {
-                formDataToSend.append('media', mediaFile);
-            }
-
-            const response = await createIssue(formDataToSend);
+            const response = await createIssue(formData);
 
             if (response.success || response._id) {
                 alert('Issue created successfully!');
@@ -130,20 +112,6 @@ const CreateIssue = () => {
                             <option value="Medium">Medium</option>
                             <option value="High">High</option>
                         </select>
-                    </div>
-
-                    <div className="form-group">
-                        <label className="form-label">
-                            Attach Image/Video (Optional)
-                        </label>
-                        <input
-                            type="file"
-                            name="media"
-                            onChange={handleFileChange}
-                            accept="image/*,video/*"
-                            className="file-input"
-                        />
-                        {mediaFile && <p className="file-name">Selected: {mediaFile.name}</p>}
                     </div>
 
                     {error && (

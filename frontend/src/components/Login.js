@@ -61,6 +61,9 @@ const Login = ({ setStatusLogin }) => {
     return (
         <div className="login-container">
             <div className="login-card">
+                <div className="back-to-home">
+                    <Link to="/" className="home-link">← Back to Home</Link>
+                </div>
                 <h2 className="login-title">Login</h2>
                 <form onSubmit={handleLogin} className="login-form">
                     <div className="form-group">
