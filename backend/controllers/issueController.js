@@ -19,8 +19,7 @@ export const postIssue = async( req , res , next) => {
             description,
             category,
             priority,
-            media: req.file ? req.file.path : null, // if media uploaded
-            createdBy: req.user.id                  // from auth middleware
+            createdBy: req.user.id
         });
 
         res.status(201).json(newIssue);
